@@ -1,0 +1,3616 @@
+  "use client";
+
+import { useState, useCallback, useEffect, useRef } from "react";
+
+// نظام الترجمة المتكامل مع 99 لغة للواجهة
+interface TranslationKeys {
+  [key: string]: string;
+}
+
+interface TranslationsType {
+  [key: string]: TranslationKeys;
+}
+
+const translations: TranslationsType = {
+  ar: {
+    appName: "شاديدة",
+    tagline: "النظام المتكامل الذكي لترجمة الفيديو",
+    login: "تسجيل الدخول",
+    signup: "إنشاء حساب",
+    logout: "تسجيل الخروج",
+    profile: "الملف الشخصي",
+    processing99: "🔄 معالجة 99 لغة",
+    
+    heroTitle: "النظام المتكامل الذكي لترجمة الفيديو",
+    heroDescription: "تفريغ وترجمة الفيديوهات بدقة احترافية مع نظام الذكاء الاصطناعي المتكامل. يدعم 99 لغة مع تقنيات Whisper وGPT المتقدمة.",
+    badgeText: "🎯 نظام متكامل - 99 لغة - ذكاء اصطناعي متقدم",
+    
+    uploadTitle: "ارفع ملفك",
+    uploadSubtitle: "فيديو أو صوت حتى 10GB",
+    dragDrop: "اسحب الملف هنا أو انقر للرفع",
+    chooseFile: "اختر ملف",
+    supportedFormats: "MP4, MP3, AVI, MKV, MOV, WAV + 12 صيغ أخرى",
+    fileReady: "ملف جاهز",
+    removeFile: "إزالة الملف",
+    
+    settingsTitle: "إعدادات المعالجة المتكاملة",
+    settingsSubtitle: "اختر اللغات ونوع المعالجة الذكية",
+    sourceLang: "🌍 اللغة الأصلية",
+    sourceLangHint: "اختر لغة الفيديو الأصلية أو الكشف التلقائي الذكي",
+    targetLang: "🎯 اللغة الهدف",
+    targetLangHint: "اختر اللغة التي تريد الترجمة إليها",
+    processingType: "نوع المعالجة",
+    
+    transcribeOnly: "تفريغ فقط",
+    transcribeDesc: "استخراج النص من الصوت بتقنية Whisper المتقدمة",
+    translateOnly: "ترجمة فقط",
+    translateDesc: "ترجمة النص الموجود بذكاء اصطناعي متقدم",
+    burnTranscribe: "حرق التفريغ",
+    burnTranscribeDesc: "تفريغ وحرق النص على الفيديو بجودة عالية",
+    burnTranslate: "حرق الترجمة", 
+    burnTranslateDesc: "ترجمة وحرق النص على الفيديو بتقنية متطورة",
+    
+    startProcessing: "🚀 بدء المعالجة المتكاملة",
+    processing: "جاري المعالجة الذكية...",
+    
+    reviewTitle: "مراجعة النص قبل الحرق",
+    reviewSubtitle: "يمكنك تعديل النص قبل حرقه على الفيديو باستخدام محررنا الذكي",
+    transcribedText: "النص المفرغ",
+    translatedText: "النص المترجم",
+    editPlaceholder: "قم بتعديل النص هنا...",
+    saveChanges: "💾 حفظ التعديلات",
+    burnNow: "🔥 ابدأ الحرق المتقدم",
+    skipReview: "تخطي المراجعة",
+    changesSaved: "✅ تم حفظ التعديلات بنجاح",
+    
+    feature1Title: "99 لغة مدعومة",
+    feature1Desc: "نظام Whisper المتقدم يدعم 99 لغة للتفريغ والترجمة الدقيقة",
+    feature2Title: "معالجة ذكية سريعة",
+    feature2Desc: "TensorDock GPU مع تسريع 10x ومعالجة متوازية",
+    feature3Title: "نظام آمن وخاص",
+    feature3Desc: "ملفاتك مشفرة بنظام متكامل ولا يصل إليها أحد غيرك",
+    feature4Title: "مراجعة النص الذكية",
+    feature4Desc: "مراجعة وتعديل النص قبل الحرق النهائي بمحرر متقدم",
+    
+    supportedLanguages: "🌍 اللغات المدعومة بالكامل",
+    additionalLanguages: "لغة إضافية مدعومة بالكامل",
+    
+    processingComplete: "المعالجة اكتملت! جاري إعداد النتائج الذكية...",
+    reviewQuestion: "هل تريد مراجعة النص قبل الحرق باستخدام نظام المراجعة المتقدم؟",
+    reviewYes: "نعم، مراجعة النص المتقدمة",
+    reviewNo: "لا، ابدأ الحرق المباشر",
+    
+    editorHelp: "يمكنك تعديل النص كما تريد. استخدم Enter للسطور الجديدة.",
+    charCount: "عدد الأحرف",
+    wordsCount: "عدد الكلمات",
+    selectInterfaceLanguage: "اختر لغة الواجهة",
+    
+    // نصوص جديدة لنظام التسجيل
+    authModalTitle: "الوصول إلى منصة شاديدة المتكاملة",
+    authModalSubtitle: "اختر طريقة التسجيل المناسبة لك في نظامنا المتكامل",
+    emailPlaceholder: "البريد الإلكتروني",
+    passwordPlaceholder: "كلمة المرور",
+    confirmPassword: "تأكيد كلمة المرور",
+    forgotPassword: "نسيت كلمة المرور؟",
+    noAccount: "ليس لديك حساب؟",
+    haveAccount: "لديك حساب بالفعل؟",
+    signIn: "تسجيل الدخول",
+    signUp: "إنشاء حساب",
+    continueWith: "أو المتابعة باستخدام",
+    googleSignIn: "التسجيل بحساب جوجل",
+    facebookSignIn: "التسجيل بحساب فيسبوك",
+    appleSignIn: "التسجيل بحساب آبل",
+    twitterSignIn: "التسجيل بحساب تويتر",
+    githubSignIn: "التسجيل بحساب جيت هاب",
+    termsAgree: "بالاستمرار، فإنك توافق على شروط الخدمة وسياسة الخصوصية",
+    welcomeBack: "مرحباً بعودتك!",
+    createAccount: "إنشاء حساب جديد",
+    resetPassword: "إعادة تعيين كلمة المرور",
+    resetInstructions: "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين",
+    sendResetLink: "إرسال رابط إعادة التعيين",
+    backToLogin: "العودة لتسجيل الدخول",
+
+    // نصوص جديدة للنظام المتكامل
+    advancedSettings: "الإعدادات المتقدمة",
+    whisperModel: "نموذج Whisper",
+    whisperModelHint: "اختر حجم النموذج (كلما كبر الحجم زادت الدقة والوقت)",
+    gptModel: "نموذج GPT",
+    gptModelHint: "GPT-4 أكثر دقة لكن أبطأ وأعلى تكلفة",
+    splitMode: "تقطيع الملف",
+    noSplit: "بدون تقطيع",
+    regularSplit: "تقطيع منتظم",
+    manualSplit: "تقطيع يدوي",
+    splitMinutes: "مدة كل جزء (دقائق)",
+    manualTimes: "التوقيتات اليدوية",
+    addTimeSegment: "إضافة مقطع زمني",
+    startTime: "وقت البداية",
+    endTime: "وقت النهاية",
+    timeFormatHint: "الصيغة: HH:MM:SS أو MM:SS أو SS",
+    subtitlePosition: "موضع الترجمة",
+    topCenter: "أعلى الوسط",
+    middleCenter: "وسط الشاشة", 
+    bottomCenter: "أسفل الوسط",
+    subtitleStyle: "نمط الترجمة",
+    fontSize: "حجم الخط",
+    watermark: "علامة مائية",
+    noWatermark: "بدون علامة مائية",
+    defaultWatermark: "علامة افتراضية",
+    customWatermark: "نص مخصص",
+    processingProgress: "تقدم المعالجة",
+    currentStage: "المرحلة الحالية",
+    estimatedTime: "الوقت المتبقي",
+    stageExtracting: "جاري استخراج الصوت...",
+    stageTranscribing: "جاري التفريغ...",
+    stageTranslating: "جاري الترجمة...",
+    stageBurning: "جاري الحرق...",
+    stageMerging: "جاري الدمج...",
+    downloadResults: "تحميل النتائج",
+    viewAllFormats: "عرض جميع الصيغ",
+    originalTranscription: "التفريغ الأصلي",
+    translatedTexts: "النصوص المترجمة",
+    burnedVideos: "الفيديوهات المحروقة",
+    fullTexts: "النصوص الكاملة",
+    fileManagement: "إدارة الملفات",
+    recentFiles: "الملفات الحديثة",
+    storageUsage: "استخدام التخزين",
+    apiSettings: "إعدادات API",
+    enterApiKey: "أدخل مفتاح OpenAI API",
+    apiKeyHint: "يبدأ بـ sk-...",
+    saveSettings: "حفظ الإعدادات",
+    advancedOptions: "خيارات متقدمة",
+    autoDetectLanguage: "الكشف التلقائي للغة",
+    preserveOriginalAudio: "الحفاظ على الصوت الأصلي",
+    highQualityOutput: "مخرج عالي الجودة",
+    optimizeForWeb: "تحسين للويب",
+    processingQueue: "قائمة الانتظار",
+    queueStatus: "حالة القائمة",
+    pending: "قيد الانتظار",
+    processingStatus: "جاري المعالجة",
+    completed: "مكتمل",
+    failed: "فشل",
+    retry: "إعادة المحاولة",
+    cancel: "إلغاء",
+    removeFromQueue: "إزالة من القائمة",
+    processingHistory: "سجل المعالجة",
+    date: "التاريخ",
+    duration: "المدة",
+    fileSize: "حجم الملف",
+    actions: "الإجراءات",
+    realTimePreview: "معاينة مباشرة",
+    preview: "معاينة",
+    finalOutput: "المخرج النهائي",
+    subtitlesOnly: "الترجمة فقط",
+    burnedVideo: "فيديو محروق",
+    allFormats: "جميع الصيغ",
+    shareResults: "مشاركة النتائج",
+    getShareableLink: "الحصول على رابط مشاركة",
+    embedCode: "كود تضمين",
+    integration: "التكامل",
+    apiDocumentation: "توثيق API",
+    webhookSettings: "إعدادات Webhook",
+    batchProcessing: "معالجة جماعية",
+    selectMultipleFiles: "اختر عدة ملفات",
+    processInBatch: "معالجة جماعية",
+    bulkOperations: "عمليات جماعية",
+    selectAll: "اختر الكل",
+    processSelected: "معالجة المحدد",
+    clearCompleted: "مسح المكتمل",
+    storageManagement: "إدارة التخزين",
+    cleanTempFiles: "تنظيف الملفات المؤقتة",
+    freeUpSpace: "تحرير مساحة",
+    backupSettings: "إعدادات النسخ الاحتياطي",
+    autoBackup: "نسخ احتياطي تلقائي",
+    cloudSync: "مزامنة سحابية",
+    performance: "الأداء",
+    systemResources: "موارد النظام",
+    gpuAcceleration: "تسريع GPU",
+    memoryUsage: "استخدام الذاكرة",
+    cpuUsage: "استخدام المعالج",
+    optimizePerformance: "تحسين الأداء",
+    support: "الدعم",
+    documentation: "التوثيق",
+    tutorials: "الدروس",
+    community: "المجتمع",
+    contactSupport: "اتصل بالدعم",
+    feedback: "ملاحظات",
+
+    // نصوص جديدة للنظام المتكامل الذكي
+    environmentDetection: "كشف البيئة",
+    saasConfiguration: "تكوين SaaS",
+    licenseManagement: "إدارة الترخيص",
+    multiModelWhisper: "Whisper متعدد النماذج",
+    ensembleTranslation: "الترجمة المجمعة",
+    qualityOptimization: "تحسين الجودة",
+    intelligentAnalysis: "التحليل الذكي",
+    smartSkipping: "التخطي الذكي",
+    qualityEnhancement: "تحسين الجودة",
+    continuitySystem: "نظام الاستمرارية",
+    stateManagement: "إدارة الحالة",
+    resumeCapability: "القدرة على الاستئناف",
+    reconstructionEngine: "محرك إعادة البناء",
+    translationIntelligence: "ذكاء الترجمة",
+    contextAwareProcessing: "المعالجة الواعية بالسياق",
+    costOptimization: "تحسين التكلفة",
+    qualityAssurance: "ضمان الجودة",
+    timingDisplayOptimizer: "محسن التوقيت والعرض",
+    linguisticAnalysis: "التحليل اللغوي",
+    autoTiming: "التوقيت التلقائي",
+    displayEnhancement: "تحسين العرض",
+    advancedRendering: "التصيير المتقدم",
+    templateSystem: "نظام القوالب",
+    smartBurning: "الحرق الذكي",
+    multiFormatSupport: "دعم تعدد الصيغ",
+    analyticsImprovement: "التحليلات والتحسين",
+    qualityTracking: "تتبع الجودة",
+    performanceAnalytics: "تحليلات الأداء",
+    mlOptimization: "تحسين التعلم الآلي",
+    apiIntegration: "دمج API",
+
+    // نصوص جديدة للواجهة المحسنة
+    smartFeatures: "الميزات الذكية",
+    aiProcessingHub: "مركز المعالجة بالذكاء الاصطناعي",
+    smartMediaProcessor: "معالج الوسائط الذكي",
+    systemOverview: "نظرة عامة على النظام",
+    advancedAI: "ذكاء اصطناعي متقدم",
+    realTimeProcessing: "معالجة في الوقت الفعلي",
+    qualityMetrics: "مقاييس الجودة",
+    processingInsights: "رؤى المعالجة",
+    smartEditing: "التعديل الذكي",
+    automatedWorkflow: "سير العمل الآلي",
+    intelligentProcessing: "المعالجة الذكية",
+    systemHealth: "صحة النظام",
+    smartOptimization: "التحسين الذكي",
+    advancedConfiguration: "التكوين المتقدم",
+    systemMonitoring: "مراقبة النظام",
+    performanceMetrics: "مقاييس الأداء",
+    efficiencyScore: "درجة الكفاءة",
+    accuracyScore: "درجة الدقة",
+    speedOptimization: "تحسين السرعة",
+    qualityScore: "درجة الجودة",
+    systemStatus: "حالة النظام",
+    operationalMetrics: "المقاييس التشغيلية",
+
+    // نصوص جديدة للترجمة الفورية والمحادثة
+    instantTranslation: "ترجمة فورية",
+    liveConversation: "محادثة مباشرة",
+    textTranslation: "ترجمة نصية",
+    voiceTranslation: "ترجمة صوتية",
+    sourceText: "النص الأصلي",
+    speakNow: "تحدث الآن",
+    listening: "جاري الاستماع...",
+    pressToTalk: "اضغط للتحدث",
+    conversationMode: "وضع المحادثة",
+    switchLanguages: "تبديل اللغات",
+    copyTranslation: "نسخ الترجمة",
+    clearText: "مسح النص",
+    startConversation: "بدء المحادثة",
+    endConversation: "إنهاء المحادثة",
+    yourLanguage: "لغتك",
+    theirLanguage: "لغة الطرف الآخر",
+    conversationHistory: "سجل المحادثة",
+    downloadTranscript: "تحميل النص",
+    realTimeCaption: "ترجمة فورية",
+    audioQuality: "جودة الصوت",
+    connectionStatus: "حالة الاتصال",
+    connected: "متصل",
+    disconnected: "غير متصل",
+
+    // إضافة النص المفقود لترجمة الفيديو
+    videoTranslation: "ترجمة الفيديو",
+
+    // نصوص جديدة لنظام إدارة الأخطاء والمراقبة
+    errorHandling: "نظام التعامل مع الأخطاء",
+    retryMechanism: "آلية إعادة المحاولة",
+    maxRetries: "أقصى عدد للمحاولات",
+    autoRetry: "إعادة المحاولة التلقائية",
+    errorContext: "سياق الخطأ",
+    errorLogs: "سجلات الأخطاء",
+    validationSystem: "نظام التحقق من الصحة",
+    fileValidation: "التحقق من الملفات",
+    virusScan: "فحص الفيروسات",
+    encodingCheck: "فحص الترميز",
+    memoryOptimization: "تحسين الذاكرة",
+    gpuManagement: "إدارة معالجات الرسوم",
+    performanceMonitoring: "مراقبة الأداء",
+    costTracking: "تتبع التكاليف",
+    usageAnalytics: "تحليلات الاستخدام",
+    dynamicConfiguration: "التكوين الديناميكي",
+    autoResume: "الاستئناف التلقائي",
+    checkpointSystem: "نظام نقاط الحفظ",
+    backupRecovery: "النسخ الاحتياطي والاستعادة",
+    realTimeAlerts: "التنبيهات الفورية",
+    healthMonitoring: "مراقبة الصحة",
+    apiHealth: "صحة واجهات البرمجة",
+    systemMetrics: "مقاييس النظام",
+    budgetAlerts: "تنبيهات الميزانية",
+    resourceAllocation: "تخصيص الموارد",
+    processIsolation: "عزل العمليات",
+    faultTolerance: "تحمل الأخطاء",
+    recoveryProcedures: "إجراءات الاستعادة",
+    qualityControl: "مراقبة الجودة",
+    performanceTuning: "ضبط الأداء",
+    systemMaintenance: "صيانة النظام",
+    autoScaling: "التحجيم التلقائي",
+    loadBalancing: "موازنة الحمل",
+    securityMonitoring: "المراقبة الأمنية",
+    complianceTracking: "تتبع الامتثال",
+    auditLogs: "سجلات التدقيق",
+    incidentReporting: "الإبلاغ عن الحوادث",
+    serviceHealth: "صحة الخدمة",
+    componentStatus: "حالة المكونات",
+    dependencyMonitoring: "مراقبة التبعيات",
+    throughputMetrics: "مقاييس الإنتاجية",
+    latencyMonitoring: "مراقبة زمن الاستجابة",
+    errorRates: "معدلات الخطأ",
+    successMetrics: "مقاييس النجاح",
+    userExperience: "تجربة المستخدم",
+    operationalEfficiency: "الكفاءة التشغيلية",
+    capacityPlanning: "تخطيط السعة",
+    predictiveMaintenance: "الصيانة التنبؤية",
+    anomalyDetection: "كشف الشذوذ",
+    trendAnalysis: "تحليل الاتجاهات",
+    resourceForecasting: "التنبؤ بالموارد",
+    costForecasting: "التنبؤ بالتكاليف",
+    performanceForecasting: "التنبؤ بالأداء",
+    riskAssessment: "تقييم المخاطر",
+    impactAnalysis: "تحليل الأثر",
+    rootCauseAnalysis: "تحليل السبب الجذري",
+    preventiveMeasures: "الإجراءات الوقائية",
+    correctiveActions: "الإجراءات التصحيحية",
+    continuousImprovement: "التحسين المستمر",
+    systemReliability: "موثوقية النظام",
+    serviceAvailability: "توفر الخدمة",
+    disasterRecovery: "استعادة الكوارث",
+    businessContinuity: "استمرارية الأعمال",
+    dataIntegrity: "سلامة البيانات",
+    systemResilience: "مرونة النظام",
+    operationalResilience: "مرونة العمليات"
+  },
+  en: {
+    appName: "Shadida",
+    tagline: "AI Integrated Video Translation System",
+    login: "Login",
+    signup: "Sign Up",
+    logout: "Logout",
+    profile: "Profile",
+    processing99: "🔄 Processing 99 languages",
+    
+    heroTitle: "AI Integrated Video Translation System",
+    heroDescription: "Transcribe and translate videos with professional accuracy using integrated AI systems. Supports 99 languages with advanced Whisper and GPT technology.",
+    badgeText: "🎯 Integrated System - 99 Languages - Advanced AI",
+    
+    uploadTitle: "Upload Your File",
+    uploadSubtitle: "Video or audio up to 10GB",
+    dragDrop: "Drag file here or click to upload",
+    chooseFile: "Choose File",
+    supportedFormats: "MP4, MP3, AVI, MKV, MOV, WAV + 12 more formats",
+    fileReady: "File Ready",
+    removeFile: "Remove File",
+    
+    settingsTitle: "Integrated Processing Settings",
+    settingsSubtitle: "Choose languages and intelligent processing type",
+    sourceLang: "🌍 Source Language",
+    sourceLangHint: "Choose the original video language or smart auto-detect",
+    targetLang: "🎯 Target Language",
+    targetLangHint: "Choose the language you want to translate to",
+    processingType: "Processing Type",
+    
+    transcribeOnly: "Transcribe Only",
+    transcribeDesc: "Extract text from audio using advanced Whisper technology",
+    translateOnly: "Translate Only", 
+    translateDesc: "Translate existing text with advanced AI",
+    burnTranscribe: "Burn Transcription",
+    burnTranscribeDesc: "Transcribe and burn text on video with high quality",
+    burnTranslate: "Burn Translation",
+    burnTranslateDesc: "Translate and burn text on video with advanced technology",
+    
+    startProcessing: "🚀 Start Integrated Processing",
+    processing: "Smart Processing...",
+    
+    reviewTitle: "Review Text Before Burning",
+    reviewSubtitle: "You can edit the text before burning it on video using our smart editor",
+    transcribedText: "Transcribed Text",
+    translatedText: "Translated Text",
+    editPlaceholder: "Edit the text here...",
+    saveChanges: "💾 Save Changes",
+    burnNow: "🔥 Start Advanced Burning",
+    skipReview: "Skip Review",
+    changesSaved: "✅ Changes saved successfully",
+    
+    feature1Title: "99 Supported Languages",
+    feature1Desc: "Advanced Whisper system supports 99 languages for accurate transcription and translation",
+    feature2Title: "Smart Fast Processing",
+    feature2Desc: "TensorDock GPU with 10x acceleration and parallel processing",
+    feature3Title: "Secure Integrated System",
+    feature3Desc: "Your files are encrypted with integrated system and accessible only to you",
+    feature4Title: "Smart Text Review",
+    feature4Desc: "Review and edit text before final burning with advanced editor",
+    
+    supportedLanguages: "🌍 Fully Supported Languages",
+    additionalLanguages: "additional languages fully supported",
+    
+    processingComplete: "Processing completed! Preparing smart results...",
+    reviewQuestion: "Do you want to review text before burning using advanced review system?",
+    reviewYes: "Yes, advanced text review",
+    reviewNo: "No, start direct burning",
+    
+    editorHelp: "You can edit the text as needed. Use Enter for new lines.",
+    charCount: "Characters",
+    wordsCount: "Words",
+    selectInterfaceLanguage: "Select Interface Language",
+    
+    // New texts for auth system
+    authModalTitle: "Access Shadida Integrated Platform",
+    authModalSubtitle: "Choose your preferred sign-in method in our integrated system",
+    emailPlaceholder: "Email address",
+    passwordPlaceholder: "Password",
+    confirmPassword: "Confirm Password",
+    forgotPassword: "Forgot password?",
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    continueWith: "Or continue with",
+    googleSignIn: "Continue with Google",
+    facebookSignIn: "Continue with Facebook",
+    appleSignIn: "Continue with Apple",
+    twitterSignIn: "Continue with Twitter",
+    githubSignIn: "Continue with GitHub",
+    termsAgree: "By continuing, you agree to our Terms of Service and Privacy Policy",
+    welcomeBack: "Welcome back!",
+    createAccount: "Create new account",
+    resetPassword: "Reset Password",
+    resetInstructions: "Enter your email and we'll send you a reset link",
+    sendResetLink: "Send Reset Link",
+    backToLogin: "Back to login",
+
+    // New texts for integrated system
+    advancedSettings: "Advanced Settings",
+    whisperModel: "Whisper Model",
+    whisperModelHint: "Choose model size (larger = more accurate but slower)",
+    gptModel: "GPT Model",
+    gptModelHint: "GPT-4 more accurate but slower and more expensive",
+    splitMode: "File Splitting",
+    noSplit: "No Splitting",
+    regularSplit: "Regular Split",
+    manualSplit: "Manual Split",
+    splitMinutes: "Chunk Duration (minutes)",
+    manualTimes: "Manual Timings",
+    addTimeSegment: "Add Time Segment",
+    startTime: "Start Time",
+    endTime: "End Time",
+    timeFormatHint: "Format: HH:MM:SS or MM:SS or SS",
+    subtitlePosition: "Subtitle Position",
+    topCenter: "Top Center",
+    middleCenter: "Middle Center",
+    bottomCenter: "Bottom Center",
+    subtitleStyle: "Subtitle Style",
+    fontSize: "Font Size",
+    watermark: "Watermark",
+    noWatermark: "No Watermark",
+    defaultWatermark: "Default Watermark",
+    customWatermark: "Custom Text",
+    processingProgress: "Processing Progress",
+    currentStage: "Current Stage",
+    estimatedTime: "Estimated Time",
+    stageExtracting: "Extracting Audio...",
+    stageTranscribing: "Transcribing...",
+    stageTranslating: "Translating...",
+    stageBurning: "Burning...",
+    stageMerging: "Merging...",
+    downloadResults: "Download Results",
+    viewAllFormats: "View All Formats",
+    originalTranscription: "Original Transcription",
+    translatedTexts: "Translated Texts",
+    burnedVideos: "Burned Videos",
+    fullTexts: "Full Texts",
+    fileManagement: "File Management",
+    recentFiles: "Recent Files",
+    storageUsage: "Storage Usage",
+    apiSettings: "API Settings",
+    enterApiKey: "Enter OpenAI API Key",
+    apiKeyHint: "Starts with sk-...",
+    saveSettings: "Save Settings",
+    advancedOptions: "Advanced Options",
+    autoDetectLanguage: "Auto Detect Language",
+    preserveOriginalAudio: "Preserve Original Audio",
+    highQualityOutput: "High Quality Output",
+    optimizeForWeb: "Optimize for Web",
+    processingQueue: "Processing Queue",
+    queueStatus: "Queue Status",
+    pending: "Pending",
+    processingStatus: "Processing",
+    completed: "Completed",
+    failed: "Failed",
+    retry: "Retry",
+    cancel: "Cancel",
+    removeFromQueue: "Remove from Queue",
+    processingHistory: "Processing History",
+    date: "Date",
+    duration: "Duration",
+    fileSize: "File Size",
+    actions: "Actions",
+    realTimePreview: "Real-time Preview",
+    preview: "Preview",
+    finalOutput: "Final Output",
+    subtitlesOnly: "Subtitles Only",
+    burnedVideo: "Burned Video",
+    allFormats: "All Formats",
+    shareResults: "Share Results",
+    getShareableLink: "Get Shareable Link",
+    embedCode: "Embed Code",
+    integration: "Integration",
+    apiDocumentation: "API Documentation",
+    webhookSettings: "Webhook Settings",
+    batchProcessing: "Batch Processing",
+    selectMultipleFiles: "Select Multiple Files",
+    processInBatch: "Process in Batch",
+    bulkOperations: "Bulk Operations",
+    selectAll: "Select All",
+    processSelected: "Process Selected",
+    clearCompleted: "Clear Completed",
+    storageManagement: "Storage Management",
+    cleanTempFiles: "Clean Temp Files",
+    freeUpSpace: "Free Up Space",
+    backupSettings: "Backup Settings",
+    autoBackup: "Auto Backup",
+    cloudSync: "Cloud Sync",
+    performance: "Performance",
+    systemResources: "System Resources",
+    gpuAcceleration: "GPU Acceleration",
+    memoryUsage: "Memory Usage",
+    cpuUsage: "CPU Usage",
+    optimizePerformance: "Optimize Performance",
+    support: "Support",
+    documentation: "Documentation",
+    tutorials: "Tutorials",
+    community: "Community",
+    contactSupport: "Contact Support",
+    feedback: "Feedback",
+
+    // New texts for integrated AI system
+    environmentDetection: "Environment Detection",
+    saasConfiguration: "SaaS Configuration",
+    licenseManagement: "License Management",
+    multiModelWhisper: "Multi-Model Whisper",
+    ensembleTranslation: "Ensemble Translation",
+    qualityOptimization: "Quality Optimization",
+    intelligentAnalysis: "Intelligent Analysis",
+    smartSkipping: "Smart Skipping",
+    qualityEnhancement: "Quality Enhancement",
+    continuitySystem: "Continuity System",
+    stateManagement: "State Management",
+    resumeCapability: "Resume Capability",
+    reconstructionEngine: "Reconstruction Engine",
+    translationIntelligence: "Translation Intelligence",
+    contextAwareProcessing: "Context-Aware Processing",
+    costOptimization: "Cost Optimization",
+    qualityAssurance: "Quality Assurance",
+    timingDisplayOptimizer: "Timing & Display Optimizer",
+    linguisticAnalysis: "Linguistic Analysis",
+    autoTiming: "Auto-Timing",
+    displayEnhancement: "Display Enhancement",
+    advancedRendering: "Advanced Rendering",
+    templateSystem: "Template System",
+    smartBurning: "Smart Burning",
+    multiFormatSupport: "Multi-Format Support",
+    analyticsImprovement: "Analytics & Improvement",
+    qualityTracking: "Quality Tracking",
+    performanceAnalytics: "Performance Analytics",
+    mlOptimization: "ML Optimization",
+    apiIntegration: "API Integration",
+
+    // New texts for enhanced UI
+    smartFeatures: "Smart Features",
+    aiProcessingHub: "AI Processing Hub",
+    smartMediaProcessor: "Smart Media Processor",
+    systemOverview: "System Overview",
+    advancedAI: "Advanced AI",
+    realTimeProcessing: "Real-time Processing",
+    qualityMetrics: "Quality Metrics",
+    processingInsights: "Processing Insights",
+    smartEditing: "Smart Editing",
+    automatedWorkflow: "Automated Workflow",
+    intelligentProcessing: "Intelligent Processing",
+    systemHealth: "System Health",
+    smartOptimization: "Smart Optimization",
+    advancedConfiguration: "Advanced Configuration",
+    systemMonitoring: "System Monitoring",
+    performanceMetrics: "Performance Metrics",
+    efficiencyScore: "Efficiency Score",
+    accuracyScore: "Accuracy Score",
+    speedOptimization: "Speed Optimization",
+    qualityScore: "Quality Score",
+    systemStatus: "System Status",
+    operationalMetrics: "Operational Metrics",
+
+    // New texts for instant translation and conversation
+    instantTranslation: "Instant Translation",
+    liveConversation: "Live Conversation",
+    textTranslation: "Text Translation",
+    voiceTranslation: "Voice Translation",
+    sourceText: "Source Text",
+    speakNow: "Speak Now",
+    listening: "Listening...",
+    pressToTalk: "Press to Talk",
+    conversationMode: "Conversation Mode",
+    switchLanguages: "Switch Languages",
+    copyTranslation: "Copy Translation",
+    clearText: "Clear Text",
+    startConversation: "Start Conversation",
+    endConversation: "End Conversation",
+    yourLanguage: "Your Language",
+    theirLanguage: "Their Language",
+    conversationHistory: "Conversation History",
+    downloadTranscript: "Download Transcript",
+    realTimeCaption: "Real-time Caption",
+    audioQuality: "Audio Quality",
+    connectionStatus: "Connection Status",
+    connected: "Connected",
+    disconnected: "Disconnected",
+
+    // Add missing video translation text
+    videoTranslation: "Video Translation",
+
+    // New texts for error handling and monitoring
+    errorHandling: "Error Handling System",
+    retryMechanism: "Retry Mechanism",
+    maxRetries: "Maximum Retries",
+    autoRetry: "Auto Retry",
+    errorContext: "Error Context",
+    errorLogs: "Error Logs",
+    validationSystem: "Validation System",
+    fileValidation: "File Validation",
+    virusScan: "Virus Scan",
+    encodingCheck: "Encoding Check",
+    memoryOptimization: "Memory Optimization",
+    gpuManagement: "GPU Management",
+    performanceMonitoring: "Performance Monitoring",
+    costTracking: "Cost Tracking",
+    usageAnalytics: "Usage Analytics",
+    dynamicConfiguration: "Dynamic Configuration",
+    autoResume: "Auto Resume",
+    checkpointSystem: "Checkpoint System",
+    backupRecovery: "Backup & Recovery",
+    realTimeAlerts: "Real-time Alerts",
+    healthMonitoring: "Health Monitoring",
+    apiHealth: "API Health",
+    systemMetrics: "System Metrics",
+    budgetAlerts: "Budget Alerts",
+    resourceAllocation: "Resource Allocation",
+    processIsolation: "Process Isolation",
+    faultTolerance: "Fault Tolerance",
+    recoveryProcedures: "Recovery Procedures",
+    qualityControl: "Quality Control",
+    performanceTuning: "Performance Tuning",
+    systemMaintenance: "System Maintenance",
+    autoScaling: "Auto Scaling",
+    loadBalancing: "Load Balancing",
+    securityMonitoring: "Security Monitoring",
+    complianceTracking: "Compliance Tracking",
+    auditLogs: "Audit Logs",
+    incidentReporting: "Incident Reporting",
+    serviceHealth: "Service Health",
+    componentStatus: "Component Status",
+    dependencyMonitoring: "Dependency Monitoring",
+    throughputMetrics: "Throughput Metrics",
+    latencyMonitoring: "Latency Monitoring",
+    errorRates: "Error Rates",
+    successMetrics: "Success Metrics",
+    userExperience: "User Experience",
+    operationalEfficiency: "Operational Efficiency",
+    capacityPlanning: "Capacity Planning",
+    predictiveMaintenance: "Predictive Maintenance",
+    anomalyDetection: "Anomaly Detection",
+    trendAnalysis: "Trend Analysis",
+    resourceForecasting: "Resource Forecasting",
+    costForecasting: "Cost Forecasting",
+    performanceForecasting: "Performance Forecasting",
+    riskAssessment: "Risk Assessment",
+    impactAnalysis: "Impact Analysis",
+    rootCauseAnalysis: "Root Cause Analysis",
+    preventiveMeasures: "Preventive Measures",
+    correctiveActions: "Corrective Actions",
+    continuousImprovement: "Continuous Improvement",
+    systemReliability: "System Reliability",
+    serviceAvailability: "Service Availability",
+    disasterRecovery: "Disaster Recovery",
+    businessContinuity: "Business Continuity",
+    dataIntegrity: "Data Integrity",
+    systemResilience: "System Resilience",
+    operationalResilience: "Operational Resilience"
+  }
+};
+
+// قائمة اللغات المدعومة (99 لغة)
+const supportedLanguages = [
+  { code: "auto", name: "Auto-Detect", native: "🔍 الكشف التلقائي", interface: "auto" },
+  { code: "ar", name: "Arabic", native: "العربية", interface: "ar" },
+  { code: "en", name: "English", native: "English", interface: "en" },
+  { code: "es", name: "Spanish", native: "Español", interface: "es" },
+  { code: "fr", name: "French", native: "Français", interface: "fr" },
+  { code: "de", name: "German", native: "Deutsch", interface: "en" },
+  { code: "zh", name: "Chinese", native: "中文", interface: "en" },
+  { code: "ja", name: "Japanese", native: "日本語", interface: "en" },
+  { code: "ko", name: "Korean", native: "한국어", interface: "en" },
+  { code: "hi", name: "Hindi", native: "हिन्दी", interface: "en" },
+  { code: "ru", name: "Russian", native: "Русский", interface: "en" },
+  { code: "pt", name: "Portuguese", native: "Português", interface: "en" },
+  { code: "it", name: "Italian", native: "Italiano", interface: "en" },
+  { code: "tr", name: "Turkish", native: "Türkçe", interface: "en" },
+  { code: "nl", name: "Dutch", native: "Nederlands", interface: "en" },
+  { code: "pl", name: "Polish", native: "Polski", interface: "en" },
+  { code: "sv", name: "Swedish", native: "Svenska", interface: "en" },
+  { code: "id", name: "Indonesian", native: "Bahasa Indonesia", interface: "en" },
+  { code: "vi", name: "Vietnamese", native: "Tiếng Việt", interface: "en" },
+  { code: "he", name: "Hebrew", native: "עברית", interface: "en" },
+  { code: "th", name: "Thai", native: "ไทย", interface: "en" },
+  { code: "uk", name: "Ukrainian", native: "Українська", interface: "en" },
+  { code: "el", name: "Greek", native: "Ελληνικά", interface: "en" },
+  { code: "ro", name: "Romanian", native: "Română", interface: "en" },
+  { code: "hu", name: "Hungarian", native: "Magyar", interface: "en" },
+  { code: "da", name: "Danish", native: "Dansk", interface: "en" },
+  { code: "fi", name: "Finnish", native: "Suomi", interface: "en" },
+  { code: "no", name: "Norwegian", native: "Norsk", interface: "en" },
+  { code: "cs", name: "Czech", native: "Čeština", interface: "en" },
+  { code: "sk", name: "Slovak", native: "Slovenčina", interface: "en" },
+];
+
+// دالة للحصول على النص المترجم مع fallback للإنجليزية
+const getTranslation = (lang: string, key: string): string => {
+  const langTranslations = translations[lang] as TranslationKeys;
+  const englishTranslations = translations.en as TranslationKeys;
+  
+  if (langTranslations && langTranslations[key]) {
+    return langTranslations[key];
+  }
+  // Fallback إلى الإنجليزية إذا لم تكن الترجمة متاحة
+  return englishTranslations[key] || key;
+};
+
+// أنواع بيانات المستخدم
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  provider: 'email' | 'google' | 'facebook' | 'apple' | 'twitter' | 'github';
+  createdAt: Date;
+  subscription?: 'free' | 'pro' | 'enterprise';
+  permissions: string[];
+}
+
+// أنواع بيانات المعالجة المتكاملة
+interface ProcessingTask {
+  id: string;
+  file: File;
+  fileName: string;
+  fileSize: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'paused';
+  progress: number;
+  currentStage: string;
+  estimatedTime: string;
+  sourceLang: string;
+  targetLangs: string[];
+  processingType: string;
+  whisperModel: string;
+  gptModel: string;
+  splitMode: string;
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  pausedAt?: Date;
+  resumedAt?: Date;
+  error?: string;
+  checkpoint?: string;
+  results?: ProcessingResults;
+  qualityMetrics?: QualityMetrics;
+  context?: ProcessingContext;
+  // خصائص جديدة لنظام إدارة الأخطاء
+  errorContext?: ErrorContext;
+  validationResult?: ValidationResult;
+  resourceMetrics?: ResourceMetrics;
+  costMetrics?: CostMetrics;
+  checkpoints: Checkpoint[];
+  retryCount: number;
+  maxRetries: number;
+  lastError?: string;
+  healthStatus: 'healthy' | 'degraded' | 'unhealthy';
+  recoveryMode: boolean;
+}
+
+interface ProcessingResults {
+  originalSrt?: string;
+  translatedSrts: { [lang: string]: string };
+  burnedVideos: { [lang: string]: string };
+  fullTexts: { [lang: string]: string };
+  assFiles: { [lang: string]: string };
+  analysis?: ContentAnalysis;
+  qualityScores?: QualityScores;
+}
+
+interface ContentAnalysis {
+  duration: number;
+  speakerCount: number;
+  emotionAnalysis: EmotionAnalysis[];
+  contentSummary: string;
+  keyTopics: string[];
+  sentiment: 'positive' | 'negative' | 'neutral';
+}
+
+interface EmotionAnalysis {
+  timestamp: number;
+  emotion: string;
+  confidence: number;
+}
+
+interface QualityScores {
+  transcriptionAccuracy: number;
+  translationQuality: number;
+  timingAccuracy: number;
+  overallScore: number;
+}
+
+interface QualityMetrics {
+  wordsProcessed: number;
+  charactersProcessed: number;
+  processingTime: number;
+  accuracyRate: number;
+  confidenceScore: number;
+}
+
+interface ProcessingContext {
+  environment: 'local' | 'cloud' | 'hybrid';
+  gpuAccelerated: boolean;
+  parallelProcessing: boolean;
+  memoryUsage: number;
+  cpuUsage: number;
+  networkStatus: 'online' | 'offline' | 'unstable';
+}
+
+// أنواع الترجمة الفورية والمحادثة
+interface InstantTranslation {
+  id: string;
+  sourceText: string;
+  translatedText: string;
+  sourceLang: string;
+  targetLang: string;
+  timestamp: Date;
+  type: 'text' | 'voice';
+}
+
+interface ConversationSession {
+  id: string;
+  userLanguage: string;
+  partnerLanguage: string;
+  startTime: Date;
+  endTime?: Date;
+  messages: ConversationMessage[];
+  status: 'active' | 'ended';
+}
+
+interface ConversationMessage {
+  id: string;
+  speaker: 'user' | 'partner';
+  originalText: string;
+  translatedText: string;
+  timestamp: Date;
+  audioUrl?: string;
+}
+
+// أنواع جديدة لنظام إدارة الأخطاء والمراقبة
+interface ErrorContext {
+  timestamp: Date;
+  errorType: string;
+  errorMessage: string;
+  stackTrace?: string;
+  operation: string;
+  fileId?: string;
+  taskId?: string;
+  userId?: string;
+  contextData: any;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  retryCount: number;
+  resolved: boolean;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  fileSize: number;
+  fileType: string;
+  duration?: number;
+  encoding?: string;
+  virusScanResult: 'clean' | 'infected' | 'error';
+  qualityScore: number;
+}
+
+interface ResourceMetrics {
+  cpuUsage: number;
+  memoryUsage: number;
+  gpuUsage: number;
+  diskUsage: number;
+  networkUsage: number;
+  temperature: number;
+  powerConsumption: number;
+}
+
+interface CostMetrics {
+  totalCost: number;
+  dailyCost: number;
+  monthlyCost: number;
+  costPerTask: number;
+  costPerMinute: number;
+  budgetRemaining: number;
+  costTrend: 'increasing' | 'decreasing' | 'stable';
+}
+
+interface SystemHealth {
+  overall: 'healthy' | 'degraded' | 'unhealthy';
+  components: {
+    api: 'healthy' | 'degraded' | 'unhealthy';
+    database: 'healthy' | 'degraded' | 'unhealthy';
+    storage: 'healthy' | 'degraded' | 'unhealthy';
+    gpu: 'healthy' | 'degraded' | 'unhealthy';
+    network: 'healthy' | 'degraded' | 'unhealthy';
+  };
+  lastChecked: Date;
+  uptime: number;
+  performanceScore: number;
+}
+
+interface Checkpoint {
+  id: string;
+  taskId: string;
+  timestamp: Date;
+  progress: number;
+  data: any;
+  fileSize: number;
+  checksum: string;
+}
+
+interface MonitoringAlert {
+  id: string;
+  type: 'error' | 'warning' | 'info' | 'success';
+  title: string;
+  message: string;
+  timestamp: Date;
+  acknowledged: boolean;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  actions: string[];
+}
+
+// أنواع الإعدادات المتقدمة
+interface AppSettings {
+  openaiApiKey: string;
+  whisperModel: string;
+  gptModel: string;
+  autoDetectLanguage: boolean;
+  preserveOriginalAudio: boolean;
+  highQualityOutput: boolean;
+  optimizeForWeb: boolean;
+  defaultWatermark: string;
+  autoBackup: boolean;
+  cloudSync: boolean;
+  
+  // إعدادات النظام المتكامل الجديدة
+  environment: 'auto' | 'local' | 'cloud';
+  saasMode: boolean;
+  licenseType: 'free' | 'pro' | 'enterprise';
+  multiModelEnabled: boolean;
+  ensembleTranslation: boolean;
+  qualityOptimization: boolean;
+  intelligentAnalysis: boolean;
+  smartSkipping: boolean;
+  qualityEnhancement: boolean;
+  continuityEnabled: boolean;
+  autoResume: boolean;
+  contextAwareProcessing: boolean;
+  costOptimization: boolean;
+  qualityAssurance: boolean;
+  linguisticAnalysis: boolean;
+  autoTiming: boolean;
+  displayEnhancement: boolean;
+  templateSystem: boolean;
+  smartBurning: boolean;
+  multiFormatSupport: boolean;
+  qualityTracking: boolean;
+  performanceAnalytics: boolean;
+  mlOptimization: boolean;
+  apiIntegration: boolean;
+
+  // إعدادات الترجمة الفورية
+  instantTranslationEnabled: boolean;
+  voiceTranslationEnabled: boolean;
+  conversationModeEnabled: boolean;
+  autoCopyTranslation: boolean;
+  speechRecognition: boolean;
+  textToSpeech: boolean;
+
+  // إعدادات جديدة لنظام إدارة الأخطاء والمراقبة
+  errorHandling: {
+    maxRetries: number;
+    autoRetry: boolean;
+    retryDelay: number;
+    errorLogging: boolean;
+    alertOnError: boolean;
+  };
+  
+  validation: {
+    maxFileSize: number;
+    allowedFormats: string[];
+    virusScanEnabled: boolean;
+    qualityCheckEnabled: boolean;
+    encodingCheckEnabled: boolean;
+  };
+  
+  resourceManagement: {
+    memoryLimit: number;
+    cpuLimit: number;
+    gpuLimit: number;
+    autoCleanup: boolean;
+    optimizeMemory: boolean;
+  };
+  
+  monitoring: {
+    enabled: boolean;
+    realTimeAlerts: boolean;
+    performanceTracking: boolean;
+    costTracking: boolean;
+    healthMonitoring: boolean;
+  };
+  
+  costControl: {
+    maxDailyCost: number;
+    maxMonthlyCost: number;
+    budgetAlerts: boolean;
+    autoShutdown: boolean;
+    costOptimization: boolean;
+  };
+  
+  backup: {
+    enabled: boolean;
+    autoBackup: boolean;
+    backupInterval: number;
+    retentionPeriod: number;
+    cloudBackup: boolean;
+  };
+}
+
+export default function Home() {
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [sourceLang, setSourceLang] = useState("auto");
+  const [targetLang, setTargetLang] = useState("ar");
+  const [processingType, setProcessingType] = useState<"transcribe" | "translate" | "burnTranscribe" | "burnTranslate">("burnTranslate");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentLang, setCurrentLang] = useState("ar");
+  const [showReview, setShowReview] = useState(false);
+  const [editedText, setEditedText] = useState("");
+  const [originalText, setOriginalText] = useState("");
+  const [isTextSaved, setIsTextSaved] = useState(false);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  
+  // حالات نظام المصادقة
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'reset'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // حالات النظام المتكامل
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [whisperModel, setWhisperModel] = useState("large-v2");
+  const [gptModel, setGptModel] = useState("gpt-3.5-turbo");
+  const [splitMode, setSplitMode] = useState("no_split");
+  const [splitMinutes, setSplitMinutes] = useState(10);
+  const [manualTimes, setManualTimes] = useState<Array<{start: string, end: string}>>([]);
+  const [subtitlePosition, setSubtitlePosition] = useState("5");
+  const [fontSize, setFontSize] = useState(32);
+  const [watermarkType, setWatermarkType] = useState("none");
+  const [customWatermark, setCustomWatermark] = useState("");
+  const [processingTasks, setProcessingTasks] = useState<ProcessingTask[]>([]);
+  const [currentTask, setCurrentTask] = useState<ProcessingTask | null>(null);
+  const [showResults, setShowResults] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [activeTab, setActiveTab] = useState<'video' | 'instant' | 'conversation'>('video');
+
+  // حالات الترجمة الفورية والمحادثة
+  const [instantSourceText, setInstantSourceText] = useState("");
+  const [instantTranslatedText, setInstantTranslatedText] = useState("");
+  const [conversationSession, setConversationSession] = useState<ConversationSession | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // حالات جديدة لنظام إدارة الأخطاء والمراقبة
+  const [errorLogs, setErrorLogs] = useState<ErrorContext[]>([]);
+  const [systemHealth, setSystemHealth] = useState<SystemHealth>({
+    overall: 'healthy',
+    components: {
+      api: 'healthy',
+      database: 'healthy',
+      storage: 'healthy',
+      gpu: 'healthy',
+      network: 'healthy'
+    },
+    lastChecked: new Date(),
+    uptime: 100,
+    performanceScore: 95
+  });
+  
+  const [resourceMetrics, setResourceMetrics] = useState<ResourceMetrics>({
+    cpuUsage: 45,
+    memoryUsage: 62,
+    gpuUsage: 23,
+    diskUsage: 78,
+    networkUsage: 34,
+    temperature: 65,
+    powerConsumption: 450
+  });
+  
+  const [costMetrics, setCostMetrics] = useState<CostMetrics>({
+    totalCost: 1247.50,
+    dailyCost: 45.80,
+    monthlyCost: 1247.50,
+    costPerTask: 2.45,
+    costPerMinute: 0.15,
+    budgetRemaining: 2752.50,
+    costTrend: 'stable'
+  });
+  
+  const [monitoringAlerts, setMonitoringAlerts] = useState<MonitoringAlert[]>([]);
+  const [validationResults, setValidationResults] = useState<{[key: string]: ValidationResult}>({});
+  const [systemLogs, setSystemLogs] = useState<string[]>([]);
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    averageProcessingTime: 245,
+    successRate: 96.8,
+    errorRate: 3.2,
+    throughput: 12.5,
+    latency: 145,
+    availability: 99.9
+  });
+
+  // حالة جديدة لتتبع رؤى المعالجة
+  const [processingInsights, setProcessingInsights] = useState({
+    totalFilesProcessed: 0,
+    languagesProcessed: 0,
+    averageProcessingTime: 0,
+    successRate: 0
+  });
+
+  const [settings, setSettings] = useState<AppSettings>({
+    openaiApiKey: "",
+    whisperModel: "large-v2",
+    gptModel: "gpt-3.5-turbo",
+    autoDetectLanguage: true,
+    preserveOriginalAudio: true,
+    highQualityOutput: false,
+    optimizeForWeb: true,
+    defaultWatermark: "Shadida AI Translation",
+    autoBackup: true,
+    cloudSync: false,
+    
+    // إعدادات النظام المتكامل الجديدة
+    environment: 'auto',
+    saasMode: false,
+    licenseType: 'free',
+    multiModelEnabled: true,
+    ensembleTranslation: true,
+    qualityOptimization: true,
+    intelligentAnalysis: true,
+    smartSkipping: true,
+    qualityEnhancement: true,
+    continuityEnabled: true,
+    autoResume: true,
+    contextAwareProcessing: true,
+    costOptimization: true,
+    qualityAssurance: true,
+    linguisticAnalysis: true,
+    autoTiming: true,
+    displayEnhancement: true,
+    templateSystem: true,
+    smartBurning: true,
+    multiFormatSupport: true,
+    qualityTracking: true,
+    performanceAnalytics: true,
+    mlOptimization: true,
+    apiIntegration: true,
+
+    // إعدادات الترجمة الفورية
+    instantTranslationEnabled: true,
+    voiceTranslationEnabled: true,
+    conversationModeEnabled: true,
+    autoCopyTranslation: true,
+    speechRecognition: true,
+    textToSpeech: true,
+
+    // إعدادات جديدة لنظام إدارة الأخطاء والمراقبة
+    errorHandling: {
+      maxRetries: 3,
+      autoRetry: true,
+      retryDelay: 5000,
+      errorLogging: true,
+      alertOnError: true
+    },
+    
+    validation: {
+      maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
+      allowedFormats: ['.mp4', '.mp3', '.avi', '.mkv', '.mov', '.wav'],
+      virusScanEnabled: true,
+      qualityCheckEnabled: true,
+      encodingCheckEnabled: true
+    },
+    
+    resourceManagement: {
+      memoryLimit: 80,
+      cpuLimit: 90,
+      gpuLimit: 95,
+      autoCleanup: true,
+      optimizeMemory: true
+    },
+    
+    monitoring: {
+      enabled: true,
+      realTimeAlerts: true,
+      performanceTracking: true,
+      costTracking: true,
+      healthMonitoring: true
+    },
+    
+    costControl: {
+      maxDailyCost: 100,
+      maxMonthlyCost: 1000,
+      budgetAlerts: true,
+      autoShutdown: true,
+      costOptimization: true
+    },
+    
+    backup: {
+      enabled: true,
+      autoBackup: true,
+      backupInterval: 3600000, // 1 hour
+      retentionPeriod: 30, // days
+      cloudBackup: false
+    }
+  });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = (key: string) => getTranslation(currentLang, key);
+
+  // محاكاة الناتج من الذكاء الاصطناعي
+  const mockAIOutput = currentLang === "ar" 
+    ? `هذا نص مثال تم تفريغه من الفيديو باستخدام تقنية Whisper المتقدمة.
+يمكنك تعديل هذا النص كما تريد قبل حرقه على الفيديو.
+التقنية تدعم 99 لغة حول العالم بدقة عالية.
+
+النظام المتكامل الذكي قام بتحليل المحتوى وتحديد:
+• 3 متحدثين رئيسيين
+• المشاعر: إيجابي بنسبة 85%
+• المواضيع الرئيسية: الذكاء الاصطناعي، الترجمة، التقنية
+• مدة الفيديو: 2:45 دقيقة`
+    : `This is a sample text transcribed from the video using advanced Whisper technology.
+You can modify this text as you wish before burning it onto the video.
+The technology supports 99 languages worldwide with high accuracy.
+
+The integrated AI system analyzed the content and identified:
+• 3 main speakers
+• Sentiment: 85% positive
+• Key topics: Artificial Intelligence, Translation, Technology
+• Video duration: 2:45 minutes`;
+
+  // وظائف جديدة لنظام إدارة الأخطاء والمراقبة
+  const addErrorLog = useCallback((error: Omit<ErrorContext, 'timestamp' | 'resolved'>) => {
+    const errorLog: ErrorContext = {
+      ...error,
+      timestamp: new Date(),
+      resolved: false
+    };
+    
+    setErrorLogs(prev => [errorLog, ...prev.slice(0, 99)]);
+    
+    // إضافة تنبيه للمراقبة
+    if (error.severity === 'high' || error.severity === 'critical') {
+      const alert: MonitoringAlert = {
+        id: Math.random().toString(36).substr(2, 9),
+        type: 'error',
+        title: `خطأ في ${error.operation}`,
+        message: error.errorMessage,
+        timestamp: new Date(),
+        acknowledged: false,
+        priority: error.severity === 'critical' ? 'critical' : 'high',
+        actions: ['retry', 'investigate', 'contact_support']
+      };
+      
+      setMonitoringAlerts(prev => [alert, ...prev]);
+    }
+    
+    // تسجيل في سجلات النظام
+    addSystemLog(`[ERROR] ${error.operation}: ${error.errorMessage}`);
+  }, []);
+
+  const addSystemLog = useCallback((message: string) => {
+    const timestamp = new Date().toISOString();
+    setSystemLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 199)]);
+  }, []);
+
+  const validateFile = useCallback((file: File): ValidationResult => {
+    const result: ValidationResult = {
+      isValid: true,
+      errors: [],
+      warnings: [],
+      fileSize: file.size,
+      fileType: file.type,
+      virusScanResult: 'clean',
+      qualityScore: 100
+    };
+
+    // التحقق من حجم الملف
+    if (file.size > 10 * 1024 * 1024 * 1024) { // 10GB
+      result.isValid = false;
+      result.errors.push('حجم الملف يتجاوز الحد المسموح (10GB)');
+    }
+
+    // التحقق من صيغة الملف
+    const allowedFormats = ['.mp4', '.mp3', '.avi', '.mkv', '.mov', '.wav'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedFormats.includes(fileExtension || '')) {
+      result.isValid = false;
+      result.errors.push(`صيغة الملف غير مدعومة: ${fileExtension}`);
+    }
+
+    // فحص جودة الملف الأساسي
+    if (file.size < 1024) { // 1KB
+      result.warnings.push('حجم الملف صغير جداً وقد لا يحتوي على محتوى مفيد');
+      result.qualityScore -= 20;
+    }
+
+    // محاكاة فحص الفيروسات
+    if (Math.random() < 0.01) { // 1% فرصة اكتشاف فيروس (محاكاة)
+      result.isValid = false;
+      result.virusScanResult = 'infected';
+      result.errors.push('تم اكتشاف تهديد أمني في الملف');
+    }
+
+    return result;
+  }, []);
+
+  const handleFileValidation = useCallback((files: File[]) => {
+    const results: {[key: string]: ValidationResult} = {};
+    
+    files.forEach(file => {
+      const validationResult = validateFile(file);
+      results[file.name] = validationResult;
+      
+      if (!validationResult.isValid) {
+        addErrorLog({
+          errorType: 'VALIDATION_ERROR',
+          errorMessage: `فشل التحقق من الملف: ${file.name}`,
+          operation: 'file_validation',
+          fileId: file.name,
+          contextData: validationResult,
+          severity: 'high',
+          retryCount: 0
+        });
+      }
+    });
+    
+    setValidationResults(results);
+    return results;
+  }, [validateFile, addErrorLog]);
+
+  const handleRetryTask = useCallback((taskId: string) => {
+    setProcessingTasks(prev => prev.map(task => {
+      if (task.id === taskId && task.retryCount < task.maxRetries) {
+        addSystemLog(`إعادة محاولة المهمة: ${task.fileName} (المحاولة ${task.retryCount + 1})`);
+        
+        return {
+          ...task,
+          status: 'pending',
+          retryCount: task.retryCount + 1,
+          lastError: undefined,
+          healthStatus: 'healthy'
+        };
+      }
+      return task;
+    }));
+  }, [addSystemLog]);
+
+  const acknowledgeAlert = useCallback((alertId: string) => {
+    setMonitoringAlerts(prev => prev.map(alert => 
+      alert.id === alertId ? { ...alert, acknowledged: true } : alert
+    ));
+  }, []);
+
+  const createCheckpoint = useCallback((task: ProcessingTask) => {
+    const checkpoint: Checkpoint = {
+      id: Math.random().toString(36).substr(2, 9),
+      taskId: task.id,
+      timestamp: new Date(),
+      progress: task.progress,
+      data: {
+        currentStage: task.currentStage,
+        processedData: task.results,
+        qualityMetrics: task.qualityMetrics
+      },
+      fileSize: task.fileSize,
+      checksum: Math.random().toString(36).substr(2, 16) // محاكاة checksum
+    };
+    
+    setProcessingTasks(prev => prev.map(t => 
+      t.id === task.id ? { 
+        ...t, 
+        checkpoints: [...t.checkpoints, checkpoint] 
+      } : t
+    ));
+    
+    addSystemLog(`تم إنشاء نقطة حفظ للمهمة: ${task.fileName} (التقدم: ${task.progress}%)`);
+  }, [addSystemLog]);
+
+  const restoreFromCheckpoint = useCallback((taskId: string, checkpointId: string) => {
+    setProcessingTasks(prev => prev.map(task => {
+      if (task.id === taskId) {
+        const checkpoint = task.checkpoints.find(cp => cp.id === checkpointId);
+        if (checkpoint) {
+          addSystemLog(`استئناف المهمة من نقطة الحفظ: ${task.fileName}`);
+          
+          return {
+            ...task,
+            status: 'processing',
+            progress: checkpoint.progress,
+            results: checkpoint.data.processedData,
+            qualityMetrics: checkpoint.data.qualityMetrics,
+            currentStage: checkpoint.data.currentStage,
+            healthStatus: 'healthy'
+          };
+        }
+      }
+      return task;
+    }));
+  }, [addSystemLog]);
+
+  const optimizeResources = useCallback(() => {
+    addSystemLog('جاري تحسين استخدام الموارد...');
+    
+    setResourceMetrics(prev => ({
+      ...prev,
+      memoryUsage: Math.max(20, prev.memoryUsage - 15),
+      cpuUsage: Math.max(15, prev.cpuUsage - 10),
+      gpuUsage: Math.max(10, prev.gpuUsage - 8)
+    }));
+    
+    // محاكاة تنظيف الذاكرة المؤقتة
+    setTimeout(() => {
+      addSystemLog('تم تحسين استخدام الموارد بنجاح');
+    }, 2000);
+  }, [addSystemLog]);
+
+  const calculateCostEfficiency = useCallback(() => {
+    const efficiency = (performanceMetrics.throughput / costMetrics.costPerMinute) * 100;
+    return Math.min(efficiency, 100);
+  }, [performanceMetrics.throughput, costMetrics.costPerMinute]);
+
+  // معالجة السحب والإفلات
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    const validFiles = files.filter(file => 
+      file.type.startsWith('video/') || file.type.startsWith('audio/')
+    );
+    
+    if (validFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...validFiles]);
+      handleFileValidation(validFiles);
+    }
+  }, [handleFileValidation]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const validFiles = Array.from(files).filter(file => 
+        file.type.startsWith('video/') || file.type.startsWith('audio/')
+      );
+      setSelectedFiles(prev => [...prev, ...validFiles]);
+      handleFileValidation(validFiles);
+    }
+  }, [handleFileValidation]);
+
+  const removeFile = useCallback((index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  // إضافة مقطع زمني يدوي
+  const addManualTimeSegment = useCallback(() => {
+    setManualTimes(prev => [...prev, { start: "00:00:00", end: "00:01:00" }]);
+  }, []);
+
+  const updateManualTime = useCallback((index: number, field: 'start' | 'end', value: string) => {
+    setManualTimes(prev => prev.map((time, i) => 
+      i === index ? { ...time, [field]: value } : time
+    ));
+  }, []);
+
+  const removeManualTime = useCallback((index: number) => {
+    setManualTimes(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  // محاكاة عملية المعالجة المتكاملة مع النظام الجديد
+  const handleProcess = useCallback(async () => {
+    if (selectedFiles.length === 0) return;
+    
+    setIsProcessing(true);
+    
+    // إنشاء مهام معالجة لكل ملف مع السياق المتكامل
+    const tasks: ProcessingTask[] = selectedFiles.map(file => ({
+      id: Math.random().toString(36).substr(2, 9),
+      file,
+      fileName: file.name,
+      fileSize: file.size,
+      status: 'pending',
+      progress: 0,
+      currentStage: t("pending"),
+      estimatedTime: "3-8 دقائق",
+      sourceLang,
+      targetLangs: processingType.includes("translate") ? [targetLang] : [],
+      processingType,
+      whisperModel,
+      gptModel,
+      splitMode,
+      createdAt: new Date(),
+      context: {
+        environment: 'cloud',
+        gpuAccelerated: true,
+        parallelProcessing: true,
+        memoryUsage: 45,
+        cpuUsage: 32,
+        networkStatus: 'online'
+      },
+      qualityMetrics: {
+        wordsProcessed: 0,
+        charactersProcessed: 0,
+        processingTime: 0,
+        accuracyRate: 0,
+        confidenceScore: 0
+      },
+      // خصائص جديدة لنظام إدارة الأخطاء
+      checkpoints: [],
+      retryCount: 0,
+      maxRetries: settings.errorHandling.maxRetries,
+      healthStatus: 'healthy',
+      recoveryMode: false,
+      validationResult: validationResults[file.name]
+    }));
+
+    setProcessingTasks(tasks);
+    
+    // محاكاة المعالجة المتسلسلة مع النظام المتكامل
+    for (const task of tasks) {
+      setCurrentTask(task);
+      
+      // تحديث حالة المهمة إلى جاري المعالجة
+      setProcessingTasks(prev => prev.map(t => 
+        t.id === task.id ? { 
+          ...t, 
+          status: 'processing', 
+          progress: 10,
+          startedAt: new Date()
+        } : t
+      ));
+
+      // محاكاة مراحل المعالجة المتكاملة
+      const stages = [
+        { stage: t("stageExtracting"), progress: 20, description: "استخراج الصوت وتحسين الجودة" },
+        { stage: t("intelligentAnalysis"), progress: 35, description: "التحليل الذكي للمحتوى والمشاعر" },
+        { stage: t("stageTranscribing"), progress: 50, description: "التفريغ باستخدام نماذج متعددة" },
+        { stage: t("contextAwareProcessing"), progress: 65, description: "الترجمة الواعية بالسياق" },
+        { stage: t("qualityOptimization"), progress: 80, description: "تحسين الجودة والتحقق" },
+        { stage: t("stageBurning"), progress: 90, description: "الحرق الذكي مع التحسينات" },
+        { stage: t("stageMerging"), progress: 100, description: "الدمج النهائي والتحسين" }
+      ];
+
+      for (const stage of stages) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setProcessingTasks(prev => prev.map(t => 
+          t.id === task.id ? { 
+            ...t, 
+            currentStage: stage.stage, 
+            progress: stage.progress,
+            qualityMetrics: {
+              wordsProcessed: Math.floor(Math.random() * 1000) + 500,
+              charactersProcessed: Math.floor(Math.random() * 5000) + 2000,
+              processingTime: Math.floor(Math.random() * 120) + 60,
+              accuracyRate: 85 + Math.floor(Math.random() * 15),
+              confidenceScore: 90 + Math.floor(Math.random() * 10)
+            }
+          } : t
+        ));
+      }
+
+      // إكمال المهمة مع النتائج المتكاملة
+      setProcessingTasks(prev => prev.map(t => 
+        t.id === task.id ? { 
+          ...t, 
+          status: 'completed', 
+          progress: 100,
+          completedAt: new Date(),
+          results: {
+            originalSrt: mockAIOutput,
+            translatedSrts: { [targetLang]: mockAIOutput },
+            burnedVideos: { [targetLang]: "video_burned.mp4" },
+            fullTexts: { [targetLang]: mockAIOutput },
+            assFiles: { [targetLang]: "subtitle.ass" },
+            analysis: {
+              duration: 165,
+              speakerCount: 3,
+              emotionAnalysis: [
+                { timestamp: 0, emotion: "positive", confidence: 0.85 },
+                { timestamp: 45, emotion: "neutral", confidence: 0.72 },
+                { timestamp: 120, emotion: "positive", confidence: 0.91 }
+              ],
+              contentSummary: "مناقشة حول تقنيات الذكاء الاصطناعي في الترجمة",
+              keyTopics: ["الذكاء الاصطناعي", "الترجمة", "التقنية"],
+              sentiment: "positive"
+            },
+            qualityScores: {
+              transcriptionAccuracy: 94,
+              translationQuality: 89,
+              timingAccuracy: 96,
+              overallScore: 93
+            }
+          },
+          qualityMetrics: {
+            wordsProcessed: 1247,
+            charactersProcessed: 6543,
+            processingTime: 245,
+            accuracyRate: 94,
+            confidenceScore: 96
+          }
+        } : t
+      ));
+    }
+
+    setIsProcessing(false);
+    setCurrentTask(null);
+    setShowResults(true);
+    
+    // تحديث رؤى المعالجة
+    setProcessingInsights(prev => ({
+      ...prev,
+      totalFilesProcessed: prev.totalFilesProcessed + selectedFiles.length,
+      languagesProcessed: Math.max(prev.languagesProcessed, 
+        new Set([...Object.keys(processingTasks.reduce((acc, task) => 
+          ({...acc, ...task.results?.translatedSrts || {}}), {}))]).size
+      )
+    }));
+    
+    // إذا كان الخيار يتضمن الحرق، نعرض خيار المراجعة
+    if (processingType === "burnTranscribe" || processingType === "burnTranslate") {
+      setOriginalText(mockAIOutput);
+      setEditedText(mockAIOutput);
+      setShowReview(true);
+    }
+  }, [selectedFiles, sourceLang, targetLang, processingType, whisperModel, gptModel, splitMode, t, mockAIOutput, validationResults, settings.errorHandling.maxRetries]);
+
+  const handleSaveChanges = useCallback(() => {
+    setIsTextSaved(true);
+    setTimeout(() => setIsTextSaved(false), 2000);
+  }, []);
+
+  const handleBurnNow = useCallback(() => {
+    setShowReview(false);
+    setIsProcessing(true);
+    
+    // محاكاة عملية الحرق المتقدمة
+    setTimeout(() => {
+      setIsProcessing(false);
+      alert("✅ " + (currentLang === "ar" ? "تم حرق النص على الفيديو بنجاح باستخدام النظام المتكامل!" : "Text burned on video successfully using integrated system!"));
+    }, 2000);
+  }, [currentLang]);
+
+  const handleLanguageChange = useCallback((langCode: string) => {
+    setCurrentLang(langCode);
+    setShowLanguageSelector(false);
+  }, []);
+
+  // وظائف نظام المصادقة
+  const handleEmailAuth = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAuthLoading(true);
+    setAuthError('');
+
+    // التحقق من صحة البيانات
+    if (authMode === 'signup' && authPassword !== authConfirmPassword) {
+      setAuthError(currentLang === 'ar' ? 'كلمات المرور غير متطابقة' : 'Passwords do not match');
+      setIsAuthLoading(false);
+      return;
+    }
+
+    if (authPassword.length < 6) {
+      setAuthError(currentLang === 'ar' ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : 'Password must be at least 6 characters');
+      setIsAuthLoading(false);
+      return;
+    }
+
+    try {
+      // محاكاة طلب API
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const mockUser: User = {
+        id: '1',
+        email: authEmail,
+        name: authEmail.split('@')[0],
+        provider: 'email',
+        createdAt: new Date(),
+        subscription: 'pro',
+        permissions: ['full_access', 'advanced_features', 'priority_support']
+      };
+      
+      setUser(mockUser);
+      setShowAuthModal(false);
+      setAuthEmail('');
+      setAuthPassword('');
+      setAuthConfirmPassword('');
+    } catch (error) {
+      setAuthError(currentLang === 'ar' ? 'حدث خطأ أثناء التسجيل' : 'An error occurred during sign up');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }, [authMode, authEmail, authPassword, authConfirmPassword, currentLang]);
+
+  const handleSocialAuth = useCallback(async (provider: User['provider']) => {
+    setIsAuthLoading(true);
+    setAuthError('');
+
+    try {
+      // محاكاة طلب API للتواصل الاجتماعي
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const mockUser: User = {
+        id: '2',
+        email: `user@${provider}.com`,
+        name: `${provider} User`,
+        provider,
+        createdAt: new Date(),
+        subscription: 'pro',
+        permissions: ['full_access', 'advanced_features', 'priority_support']
+      };
+      
+      setUser(mockUser);
+      setShowAuthModal(false);
+    } catch (error) {
+      setAuthError(currentLang === 'ar' ? 'حدث خطأ أثناء المصادقة' : 'An error occurred during authentication');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }, [currentLang]);
+
+  const handleLogout = useCallback(() => {
+    setUser(null);
+  }, []);
+
+  const handleForgotPassword = useCallback(async () => {
+    if (!authEmail) {
+      setAuthError(currentLang === 'ar' ? 'يرجى إدخال البريد الإلكتروني' : 'Please enter your email');
+      return;
+    }
+
+    setIsAuthLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      alert(currentLang === 'ar' ? 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني' : 'Reset link sent to your email');
+      setAuthMode('login');
+    } catch (error) {
+      setAuthError(currentLang === 'ar' ? 'حدث خطأ أثناء إرسال الرابط' : 'Error sending reset link');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }, [authEmail, currentLang]);
+
+  // إدارة المهام المتكاملة
+  const retryTask = useCallback((taskId: string) => {
+    setProcessingTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, status: 'pending', progress: 0 } : task
+    ));
+  }, []);
+
+  const cancelTask = useCallback((taskId: string) => {
+    setProcessingTasks(prev => prev.filter(task => task.id !== taskId));
+  }, []);
+
+  const pauseTask = useCallback((taskId: string) => {
+    setProcessingTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, status: 'paused', pausedAt: new Date() } : task
+    ));
+  }, []);
+
+  const resumeTask = useCallback((taskId: string) => {
+    setProcessingTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, status: 'processing', resumedAt: new Date() } : task
+    ));
+  }, []);
+
+  const clearCompleted = useCallback(() => {
+    setProcessingTasks(prev => prev.filter(task => task.status !== 'completed'));
+  }, []);
+
+  const downloadResults = useCallback((task: ProcessingTask) => {
+    // محاكاة تحميل النتائج
+    alert(currentLang === 'ar' ? 'جاري تحميل النتائج المتكاملة...' : 'Downloading integrated results...');
+  }, [currentLang]);
+
+  // وظائف الترجمة الفورية والمحادثة
+  const handleInstantTranslation = useCallback(async (text: string) => {
+    if (!text.trim()) return;
+    
+    // محاكاة الترجمة الفورية
+    const mockTranslation = currentLang === "ar" 
+      ? "This is a sample instant translation from the AI system."
+      : "هذه ترجمة فورية نموذجية من نظام الذكاء الاصطناعي.";
+    
+    setInstantTranslatedText(mockTranslation);
+  }, [currentLang]);
+
+  const handleStartConversation = useCallback(() => {
+    const newSession: ConversationSession = {
+      id: Math.random().toString(36).substr(2, 9),
+      userLanguage: currentLang,
+      partnerLanguage: currentLang === 'ar' ? 'en' : 'ar',
+      startTime: new Date(),
+      messages: [],
+      status: 'active'
+    };
+    
+    setConversationSession(newSession);
+    setIsListening(true);
+  }, [currentLang]);
+
+  const handleEndConversation = useCallback(() => {
+    if (conversationSession) {
+      setConversationSession({
+        ...conversationSession,
+        status: 'ended',
+        endTime: new Date()
+      });
+      setIsListening(false);
+    }
+  }, [conversationSession]);
+
+  const handleSpeak = useCallback(() => {
+    setIsSpeaking(true);
+    // محاكاة التسجيل الصوتي
+    setTimeout(() => {
+      setIsSpeaking(false);
+      // إضافة رسالة محاكاة للمحادثة
+      if (conversationSession) {
+        const newMessage: ConversationMessage = {
+          id: Math.random().toString(36).substr(2, 9),
+          speaker: 'user',
+          originalText: currentLang === 'ar' ? 'مرحباً، كيف حالك؟' : 'Hello, how are you?',
+          translatedText: currentLang === 'ar' ? 'Hello, how are you?' : 'مرحباً، كيف حالك؟',
+          timestamp: new Date()
+        };
+        
+        setConversationSession({
+          ...conversationSession,
+          messages: [...conversationSession.messages, newMessage]
+        });
+      }
+    }, 2000);
+  }, [conversationSession, currentLang]);
+
+  const isRTL = currentLang === "ar";
+
+  // حساب عدد الكلمات والحروف
+  const charCount = editedText.length;
+  const wordCount = editedText.trim() ? editedText.trim().split(/\s+/).length : 0;
+
+  // الحصول على اللغات المدعومة للواجهة
+  const interfaceLanguages = supportedLanguages.filter(lang => 
+    translations[lang.interface] !== undefined
+  );
+
+  // الحصول على نص العلامة المائية
+  const getWatermarkText = () => {
+    switch (watermarkType) {
+      case "default": return "Shadida AI Translation";
+      case "custom": return customWatermark;
+      default: return "";
+    }
+  };
+
+  // تأثيرات جديدة للمراقبة والتحديث التلقائي
+  useEffect(() => {
+    const healthInterval = setInterval(() => {
+      setSystemHealth(prev => ({
+        ...prev,
+        lastChecked: new Date(),
+        uptime: prev.uptime + 1,
+        performanceScore: 85 + Math.random() * 15
+      }));
+    }, 30000); // كل 30 ثانية
+
+    const metricsInterval = setInterval(() => {
+      setResourceMetrics(prev => ({
+        cpuUsage: Math.floor(Math.random() * 30) + 40,
+        memoryUsage: Math.floor(Math.random() * 20) + 60,
+        gpuUsage: Math.floor(Math.random() * 15) + 20,
+        diskUsage: Math.floor(Math.random() * 10) + 70,
+        networkUsage: Math.floor(Math.random() * 40) + 20,
+        temperature: 60 + Math.floor(Math.random() * 15),
+        powerConsumption: 400 + Math.floor(Math.random() * 100)
+      }));
+    }, 5000);
+
+    const costInterval = setInterval(() => {
+      setCostMetrics(prev => ({
+        ...prev,
+        dailyCost: prev.dailyCost + (Math.random() * 0.5),
+        totalCost: prev.totalCost + (Math.random() * 0.5),
+        budgetRemaining: Math.max(0, prev.budgetRemaining - (Math.random() * 0.2))
+      }));
+    }, 60000); // كل دقيقة
+
+    return () => {
+      clearInterval(healthInterval);
+      clearInterval(metricsInterval);
+      clearInterval(costInterval);
+    };
+  }, []);
+
+  // تأثير لإنشاء نقاط الحفظ التلقائية
+  useEffect(() => {
+    processingTasks.forEach(task => {
+      if (task.status === 'processing' && task.progress % 25 === 0) {
+        // إنشاء نقطة حفظ عند كل 25% تقدم
+        const hasCheckpoint = task.checkpoints.some(cp => 
+          Math.floor(cp.progress / 25) === Math.floor(task.progress / 25)
+        );
+        
+        if (!hasCheckpoint) {
+          createCheckpoint(task);
+        }
+      }
+    });
+  }, [processingTasks, createCheckpoint]);
+
+  // تأثير للتنبيهات التلقائية
+  useEffect(() => {
+    if (costMetrics.budgetRemaining < 100) {
+      const budgetAlert: MonitoringAlert = {
+        id: 'budget-warning',
+        type: 'warning',
+        title: 'تنبيه الميزانية',
+        message: 'الميزانية المتبقية منخفضة. يرجى إضافة رصيد جديد.',
+        timestamp: new Date(),
+        acknowledged: false,
+        priority: 'high',
+        actions: ['add_funds', 'adjust_settings', 'contact_support']
+      };
+      
+      setMonitoringAlerts(prev => {
+        if (!prev.some(alert => alert.id === 'budget-warning')) {
+          return [budgetAlert, ...prev];
+        }
+        return prev;
+      });
+    }
+  }, [costMetrics.budgetRemaining]);
+
+  // تأثير للترجمة الفورية
+  useEffect(() => {
+    if (instantSourceText) {
+      const timeoutId = setTimeout(() => {
+        handleInstantTranslation(instantSourceText);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [instantSourceText, handleInstantTranslation]);
+
+  return (
+    <div className={`min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Header */}
+      <header className="border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t("appName")}</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t("tagline")}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+              {/* حالة النظام */}
+              <div className="hidden lg:flex items-center space-x-4 rtl:space-x-reverse">
+                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  systemHealth.overall === 'healthy' ? 'bg-green-100 text-green-800' :
+                  systemHealth.overall === 'degraded' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {systemHealth.overall === 'healthy' ? '🟢 النظام سليم' :
+                   systemHealth.overall === 'degraded' ? '🟡 أداء منخفض' :
+                   '🔴 يحتاج اهتمام'}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  ⏱️ {systemHealth.uptime}% تشغيل
+                </div>
+                <div className="flex items-center space-x-2 text-sm">
+                  <div className={`w-2 h-2 rounded-full ${
+                    resourceMetrics.cpuUsage < 70 ? 'bg-green-500' : 
+                    resourceMetrics.cpuUsage < 85 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}></div>
+                  <span className="text-gray-600 dark:text-gray-400">CPU: {resourceMetrics.cpuUsage}%</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm">
+                  <div className={`w-2 h-2 rounded-full ${
+                    resourceMetrics.memoryUsage < 70 ? 'bg-green-500' : 
+                    resourceMetrics.memoryUsage < 85 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}></div>
+                  <span className="text-gray-600 dark:text-gray-400">RAM: {resourceMetrics.memoryUsage}%</span>
+                </div>
+              </div>
+
+              <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>{t("processing99")}</span>
+              </div>
+              
+              {/* منتقي اللغات المتقدم */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowLanguageSelector(!showLanguageSelector)}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center space-x-2 rtl:space-x-reverse"
+                >
+                  <span>🌐 {supportedLanguages.find(lang => lang.code === currentLang)?.native || "English"}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showLanguageSelector && (
+                  <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 max-h-96 overflow-y-auto">
+                    <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                      <h3 className="font-medium text-gray-900 dark:text-white">{t("selectInterfaceLanguage")}</h3>
+                    </div>
+                    <div className="p-2">
+                      {interfaceLanguages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => handleLanguageChange(lang.interface)}
+                          className={`w-full text-left rtl:text-right px-3 py-2 rounded-lg transition-colors duration-200 ${
+                            currentLang === lang.interface
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{lang.native}</span>
+                            <span className="text-xs text-gray-500">({lang.name})</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* زر المستخدم / التسجيل */}
+              {user ? (
+                <div className="relative group">
+                  <button className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors duration-200">
+                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-medium">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="hidden md:block">{user.name}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  
+                  {/* قائمة المستخدم */}
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="p-2">
+                      <button className="w-full text-left rtl:text-right px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center space-x-2 rtl:space-x-reverse">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span>{t("profile")}</span>
+                      </button>
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full text-left rtl:text-right px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 flex items-center space-x-2 rtl:space-x-reverse"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>{t("logout")}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full font-medium transition-colors duration-200"
+                >
+                  {t("login")}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium mb-6">
+              {t("badgeText")}
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              {t("heroTitle")}
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              {t("heroDescription")}
+            </p>
+          </div>
+
+          {/* System Monitoring Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* System Health */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {t("healthMonitoring")}
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">الحالة العامة</span>
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    systemHealth.overall === 'healthy' ? 'bg-green-100 text-green-800' :
+                    systemHealth.overall === 'degraded' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {systemHealth.overall}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.entries(systemHealth.components).map(([component, status]) => (
+                    <div key={component} className="text-center">
+                      <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                        status === 'healthy' ? 'bg-green-500' :
+                        status === 'degraded' ? 'bg-yellow-500' :
+                        'bg-red-500'
+                      }`}></div>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 capitalize">
+                        {component}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Resource Metrics */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {t("systemResources")}
+              </h3>
+              <div className="space-y-3">
+                {[
+                  { label: 'المعالج', value: resourceMetrics.cpuUsage, color: 'blue' },
+                  { label: 'الذاكرة', value: resourceMetrics.memoryUsage, color: 'green' },
+                  { label: 'معالج الرسوم', value: resourceMetrics.gpuUsage, color: 'purple' },
+                  { label: 'التخزين', value: resourceMetrics.diskUsage, color: 'orange' }
+                ].map((metric) => (
+                  <div key={metric.label}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600 dark:text-gray-400">{metric.label}</span>
+                      <span className="text-gray-900 dark:text-white">{metric.value}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          metric.color === 'blue' ? 'bg-blue-500' :
+                          metric.color === 'green' ? 'bg-green-500' :
+                          metric.color === 'purple' ? 'bg-purple-500' :
+                          'bg-orange-500'
+                        }`}
+                        style={{ width: `${metric.value}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Cost Tracking */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {t("costTracking")}
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">التكلفة اليومية</span>
+                  <span className="text-green-600 font-medium">${costMetrics.dailyCost.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">التكلفة الشهرية</span>
+                  <span className="text-blue-600 font-medium">${costMetrics.monthlyCost.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">الميزانية المتبقية</span>
+                  <span className={`font-medium ${
+                    costMetrics.budgetRemaining < 500 ? 'text-red-600' : 'text-gray-600'
+                  }`}>
+                    ${costMetrics.budgetRemaining.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">كفاءة التكلفة</span>
+                  <span className="text-purple-600 font-medium">
+                    {calculateCostEfficiency().toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Monitoring Alerts */}
+          {monitoringAlerts.filter(alert => !alert.acknowledged).length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {t("realTimeAlerts")}
+              </h3>
+              <div className="space-y-3">
+                {monitoringAlerts.filter(alert => !alert.acknowledged).map((alert) => (
+                  <div
+                    key={alert.id}
+                    className={`p-4 rounded-lg border-l-4 ${
+                      alert.type === 'error' ? 'bg-red-50 border-red-500 dark:bg-red-900/20' :
+                      alert.type === 'warning' ? 'bg-yellow-50 border-yellow-500 dark:bg-yellow-900/20' :
+                      alert.type === 'info' ? 'bg-blue-50 border-blue-500 dark:bg-blue-900/20' :
+                      'bg-green-50 border-green-500 dark:bg-green-900/20'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white">
+                          {alert.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {alert.message}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => acknowledgeAlert(alert.id)}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-xs text-gray-500">
+                        {alert.timestamp.toLocaleTimeString()}
+                      </span>
+                      <div className="flex space-x-2 rtl:space-x-reverse">
+                        {alert.actions.includes('retry') && (
+                          <button className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs">
+                            إعادة المحاولة
+                          </button>
+                        )}
+                        {alert.actions.includes('investigate') && (
+                          <button className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-xs">
+                            التحقيق
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* System Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t("efficiencyScore")}</p>
+                  <p className="text-2xl font-bold text-green-600">{performanceMetrics.successRate}%</p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t("accuracyScore")}</p>
+                  <p className="text-2xl font-bold text-blue-600">{performanceMetrics.availability}%</p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t("speedOptimization")}</p>
+                  <p className="text-2xl font-bold text-purple-600">{performanceMetrics.throughput}/min</p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t("qualityScore")}</p>
+                  <p className="text-2xl font-bold text-orange-600">94%</p>
+                </div>
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg mb-8">
+            <div className="flex border-b border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setActiveTab('video')}
+                className={`flex-1 py-4 px-6 text-center font-medium transition-colors duration-200 ${
+                  activeTab === 'video'
+                    ? 'text-green-600 border-b-2 border-green-500'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                🎬 {t("videoTranslation")}
+              </button>
+              <button
+                onClick={() => setActiveTab('instant')}
+                className={`flex-1 py-4 px-6 text-center font-medium transition-colors duration-200 ${
+                  activeTab === 'instant'
+                    ? 'text-green-600 border-b-2 border-green-500'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                ⚡ {t("instantTranslation")}
+              </button>
+              <button
+                onClick={() => setActiveTab('conversation')}
+                className={`flex-1 py-4 px-6 text-center font-medium transition-colors duration-200 ${
+                  activeTab === 'conversation'
+                    ? 'text-green-600 border-b-2 border-green-500'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                🎙️ {t("liveConversation")}
+              </button>
+            </div>
+
+            <div className="p-6">
+              {activeTab === 'video' && (
+                <div className="space-y-8">
+                  {/* Upload Section */}
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+                    <div className="grid lg:grid-cols-2 gap-8">
+                      {/* Left Column - Upload */}
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                            {t("uploadTitle")}
+                          </h2>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {t("uploadSubtitle")}
+                          </p>
+                        </div>
+
+                        {/* Upload Box */}
+                        <div
+                          className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer ${
+                            isDragging
+                              ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                              : "border-gray-300 dark:border-gray-600 hover:border-green-400"
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                            {selectedFiles.length > 0 ? `${selectedFiles.length} ملف/ملفات` : t("dragDrop")}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                            {t("supportedFormats")}
+                          </p>
+                          {selectedFiles.length === 0 && (
+                            <button className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full font-medium transition-colors duration-200">
+                              {t("chooseFile")}
+                            </button>
+                          )}
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            className="hidden"
+                            accept="video/*,audio/*"
+                            multiple
+                            onChange={handleFileSelect}
+                          />
+                        </div>
+
+                        {/* Selected Files List */}
+                        {selectedFiles.length > 0 && (
+                          <div className="space-y-3">
+                            <h4 className="font-medium text-gray-900 dark:text-white">{t("fileReady")}</h4>
+                            {selectedFiles.map((file, index) => (
+                              <div key={index} className={`border rounded-lg p-4 ${
+                                validationResults[file.name]?.isValid ? 
+                                'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' :
+                                'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                                    {validationResults[file.name]?.isValid ? (
+                                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    ) : (
+                                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    )}
+                                    <div>
+                                      <p className="font-medium text-gray-900 dark:text-white">{file.name}</p>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        {(file.size / (1024 * 1024)).toFixed(2)} MB
+                                      </p>
+                                      {validationResults[file.name] && (
+                                        <p className={`text-xs ${
+                                          validationResults[file.name].isValid ? 
+                                          'text-green-600' : 'text-red-600'
+                                        }`}>
+                                          {validationResults[file.name].isValid ? 
+                                            'الملف صالح للمعالجة' : 
+                                            'الملف غير صالح للمعالجة'
+                                          }
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => removeFile(index)}
+                                    className="text-red-500 hover:text-red-700"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right Column - Settings */}
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                            {t("settingsTitle")}
+                          </h2>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {t("settingsSubtitle")}
+                          </p>
+                        </div>
+
+                        {/* Language Selection */}
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              {t("sourceLang")}
+                            </label>
+                            <select
+                              value={sourceLang}
+                              onChange={(e) => setSourceLang(e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            >
+                              {supportedLanguages.map((lang) => (
+                                <option key={lang.code} value={lang.code}>
+                                  {lang.native} {lang.code !== "auto" && `(${lang.name})`}
+                                </option>
+                              ))}
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {t("sourceLangHint")}
+                            </p>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              {t("targetLang")}
+                            </label>
+                            <select
+                              value={targetLang}
+                              onChange={(e) => setTargetLang(e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            >
+                              {supportedLanguages.filter(lang => lang.code !== 'auto').map((lang) => (
+                                <option key={lang.code} value={lang.code}>
+                                  {lang.native} ({lang.name})
+                                </option>
+                              ))}
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {t("targetLangHint")}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Processing Type - 4 Options */}
+                        <div className="space-y-3">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {t("processingType")}
+                          </label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              onClick={() => setProcessingType("transcribe")}
+                              className={`p-3 border-2 rounded-xl text-center transition-all duration-200 ${
+                                processingType === "transcribe"
+                                  ? "border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300"
+                                  : "border-gray-200 dark:border-gray-600 hover:border-gray-300 text-gray-600 dark:text-gray-400"
+                              }`}
+                            >
+                              <div className="w-6 h-6 mx-auto mb-1">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </div>
+                              <span className="font-medium text-sm">{t("transcribeOnly")}</span>
+                              <p className="text-xs mt-1 opacity-75">{t("transcribeDesc")}</p>
+                            </button>
+                            
+                            <button
+                              onClick={() => setProcessingType("translate")}
+                              className={`p-3 border-2 rounded-xl text-center transition-all duration-200 ${
+                                processingType === "translate"
+                                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                  : "border-gray-200 dark:border-gray-600 hover:border-gray-300 text-gray-600 dark:text-gray-400"
+                              }`}
+                            >
+                              <div className="w-6 h-6 mx-auto mb-1">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                                </svg>
+                              </div>
+                              <span className="font-medium text-sm">{t("translateOnly")}</span>
+                              <p className="text-xs mt-1 opacity-75">{t("translateDesc")}</p>
+                            </button>
+                            
+                            <button
+                              onClick={() => setProcessingType("burnTranscribe")}
+                              className={`p-3 border-2 rounded-xl text-center transition-all duration-200 ${
+                                processingType === "burnTranscribe"
+                                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                                  : "border-gray-200 dark:border-gray-600 hover:border-gray-300 text-gray-600 dark:text-gray-400"
+                              }`}
+                            >
+                              <div className="w-6 h-6 mx-auto mb-1">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                                </svg>
+                              </div>
+                              <span className="font-medium text-sm">{t("burnTranscribe")}</span>
+                              <p className="text-xs mt-1 opacity-75">{t("burnTranscribeDesc")}</p>
+                            </button>
+                            
+                            <button
+                              onClick={() => setProcessingType("burnTranslate")}
+                              className={`p-3 border-2 rounded-xl text-center transition-all duration-200 ${
+                                processingType === "burnTranslate"
+                                  ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300"
+                                  : "border-gray-200 dark:border-gray-600 hover:border-gray-300 text-gray-600 dark:text-gray-400"
+                              }`}
+                            >
+                              <div className="w-6 h-6 mx-auto mb-1">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9h4a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V10a1 1 0 011-1zm12 0h4a1 1 0 011 1v10a1 1 0 01-1 1h-4a1 1 0 01-1-1V10a1 1 0 011-1zM9 3h6a1 1 0 011 1v16a1 1 0 01-1 1H9a1 1 0 01-1-1V4a1 1 0 011-1z" />
+                                </svg>
+                              </div>
+                              <span className="font-medium text-sm">{t("burnTranslate")}</span>
+                              <p className="text-xs mt-1 opacity-75">{t("burnTranslateDesc")}</p>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Advanced Settings Toggle */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                          <button
+                            onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                            className="flex items-center justify-between w-full text-left rtl:text-right"
+                          >
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {t("advancedSettings")}
+                            </span>
+                            <svg 
+                              className={`w-5 h-5 transform transition-transform ${showAdvancedSettings ? 'rotate-180' : ''}`}
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Advanced Settings */}
+                        {showAdvancedSettings && (
+                          <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                            {/* Whisper Model Selection */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {t("whisperModel")}
+                              </label>
+                              <select
+                                value={whisperModel}
+                                onChange={(e) => setWhisperModel(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              >
+                                <option value="tiny">Tiny (أسرع)</option>
+                                <option value="base">Base</option>
+                                <option value="small">Small</option>
+                                <option value="medium">Medium (متوازن)</option>
+                                <option value="large-v2">Large v2 (الأدق - مقترح)</option>
+                              </select>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {t("whisperModelHint")}
+                              </p>
+                            </div>
+
+                            {/* GPT Model Selection */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {t("gptModel")}
+                              </label>
+                              <select
+                                value={gptModel}
+                                onChange={(e) => setGptModel(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                              >
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (أسرع وأقل تكلفة)</option>
+                                <option value="gpt-4">GPT-4 (أدق ولكن أبطأ)</option>
+                                <option value="gpt-4-turbo">GPT-4 Turbo (متوازن)</option>
+                              </select>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {t("gptModelHint")}
+                              </p>
+                            </div>
+
+                            {/* AI Features Toggle */}
+                            <div className="border-t border-gray-300 dark:border-gray-600 pt-4">
+                              <h4 className="font-medium text-gray-900 dark:text-white mb-3">{t("smartFeatures")}</h4>
+                              <div className="grid grid-cols-2 gap-3">
+                                <label className="flex items-center space-x-2 rtl:space-x-reverse">
+                                  <input type="checkbox" checked={settings.intelligentAnalysis} onChange={() => {}} className="rounded border-gray-300" />
+                                  <span className="text-sm">{t("intelligentAnalysis")}</span>
+                                </label>
+                                <label className="flex items-center space-x-2 rtl:space-x-reverse">
+                                  <input type="checkbox" checked={settings.contextAwareProcessing} onChange={() => {}} className="rounded border-gray-300" />
+                                  <span className="text-sm">{t("contextAwareProcessing")}</span>
+                                </label>
+                                <label className="flex items-center space-x-2 rtl:space-x-reverse">
+                                  <input type="checkbox" checked={settings.qualityOptimization} onChange={() => {}} className="rounded border-gray-300" />
+                                  <span className="text-sm">{t("qualityOptimization")}</span>
+                                </label>
+                                <label className="flex items-center space-x-2 rtl:space-x-reverse">
+                                  <input type="checkbox" checked={settings.autoResume} onChange={() => {}} className="rounded border-gray-300" />
+                                  <span className="text-sm">{t("resumeCapability")}</span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Process Button */}
+                        <button
+                          onClick={handleProcess}
+                          disabled={selectedFiles.length === 0 || isProcessing || Object.values(validationResults).some(result => !result.isValid)}
+                          className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${
+                            selectedFiles.length === 0 || isProcessing || Object.values(validationResults).some(result => !result.isValid)
+                              ? "bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed"
+                              : "bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                          }`}
+                        >
+                          {isProcessing ? (
+                            <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>{t("processing")}</span>
+                            </div>
+                          ) : (
+                            t("startProcessing")
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enhanced Processing Queue with Error Handling */}
+                  {processingTasks.length > 0 && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          {t("processingQueue")}
+                        </h2>
+                        <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                          <button
+                            onClick={optimizeResources}
+                            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
+                          >
+                            {t("memoryOptimization")}
+                          </button>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {processingTasks.filter(t => t.status === 'completed').length} / {processingTasks.length} {t("completed")}
+                          </span>
+                          <button
+                            onClick={clearCompleted}
+                            className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                          >
+                            {t("clearCompleted")}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {processingTasks.map((task) => (
+                          <div key={task.id} className={`border rounded-xl p-4 ${
+                            task.healthStatus === 'healthy' ? 'border-gray-200 dark:border-gray-700' :
+                            task.healthStatus === 'degraded' ? 'border-yellow-200 dark:border-yellow-700' :
+                            'border-red-200 dark:border-red-700'
+                          }`}>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                                <div className={`w-3 h-3 rounded-full ${
+                                  task.status === 'completed' ? 'bg-green-500' :
+                                  task.status === 'processing' ? 'bg-yellow-500' :
+                                  task.status === 'paused' ? 'bg-blue-500' :
+                                  task.status === 'failed' ? 'bg-red-500' : 'bg-gray-400'
+                                }`}></div>
+                                <span className="font-medium text-gray-900 dark:text-white">{task.fileName}</span>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  {(task.fileSize / (1024 * 1024)).toFixed(2)} MB
+                                </span>
+                                {task.results?.qualityScores && (
+                                  <span className="text-sm text-green-600 dark:text-green-400">
+                                    {task.results.qualityScores.overallScore}%
+                                  </span>
+                                )}
+                                {task.lastError && (
+                                  <span className="text-sm text-red-500">✗ خطأ</span>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                                {task.status === 'completed' && (
+                                  <button
+                                    onClick={() => downloadResults(task)}
+                                    className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
+                                  >
+                                    {t("downloadResults")}
+                                  </button>
+                                )}
+                                {task.status === 'failed' && (
+                                  <button
+                                    onClick={() => handleRetryTask(task.id)}
+                                    className="px-3 py-1 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors duration-200"
+                                  >
+                                    {t("retry")} ({task.retryCount + 1}/{task.maxRetries})
+                                  </button>
+                                )}
+                                {task.status === 'processing' && (
+                                  <button
+                                    onClick={() => pauseTask(task.id)}
+                                    className="px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                                  >
+                                    إيقاف
+                                  </button>
+                                )}
+                                {task.status === 'paused' && (
+                                  <button
+                                    onClick={() => resumeTask(task.id)}
+                                    className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
+                                  >
+                                    استئناف
+                                  </button>
+                                )}
+                                {task.status !== 'processing' && (
+                                  <button
+                                    onClick={() => cancelTask(task.id)}
+                                    className="px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+                                  >
+                                    {t("removeFromQueue")}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                                <span>{task.currentStage}</span>
+                                <span>{task.progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    task.healthStatus === 'healthy' ? 'bg-green-500' :
+                                    task.healthStatus === 'degraded' ? 'bg-yellow-500' :
+                                    'bg-red-500'
+                                  }`}
+                                  style={{ width: `${task.progress}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>{t("currentStage")}: {task.currentStage}</span>
+                                <span>{t("estimatedTime")}: {task.estimatedTime}</span>
+                              </div>
+                              {task.qualityMetrics && (
+                                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                  <span>الدقة: {task.qualityMetrics.accuracyRate}%</span>
+                                  <span>الثقة: {task.qualityMetrics.confidenceScore}%</span>
+                                </div>
+                              )}
+                              
+                              {/* Checkpoints */}
+                              {task.checkpoints.length > 0 && (
+                                <div className="flex space-x-2 rtl:space-x-reverse mt-2">
+                                  {task.checkpoints.map((checkpoint) => (
+                                    <button
+                                      key={checkpoint.id}
+                                      onClick={() => restoreFromCheckpoint(task.id, checkpoint.id)}
+                                      className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                                      title={`استئناف من ${checkpoint.progress}%`}
+                                    >
+                                      {checkpoint.progress}%
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Error Display */}
+                            {task.lastError && (
+                              <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <div className="flex items-center space-x-2 rtl:space-x-reverse text-red-700 dark:text-red-300">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span className="text-sm font-medium">حدث خطأ:</span>
+                                </div>
+                                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                                  {task.lastError}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Results Section */}
+                  {showResults && processingTasks.some(t => t.status === 'completed') && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                        {t("finalOutput")}
+                      </h2>
+                      
+                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 text-center">
+                          <div className="w-12 h-12 mx-auto mb-3 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <h3 className="font-medium text-gray-900 dark:text-white mb-1">{t("originalTranscription")}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">SRT, TXT</p>
+                        </div>
+
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 text-center">
+                          <div className="w-12 h-12 mx-auto mb-3 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                            </svg>
+                          </div>
+                          <h3 className="font-medium text-gray-900 dark:text-white mb-1">{t("translatedTexts")}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">متعدد اللغات</p>
+                        </div>
+
+                        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 text-center">
+                          <div className="w-12 h-12 mx-auto mb-3 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <h3 className="font-medium text-gray-900 dark:text-white mb-1">{t("burnedVideos")}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">MP4, ASS</p>
+                        </div>
+
+                        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 text-center">
+                          <div className="w-12 h-12 mx-auto mb-3 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <h3 className="font-medium text-gray-900 dark:text-white mb-1">{t("fullTexts")}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">TXT, DOC</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex justify-center">
+                        <button
+                          onClick={() => setShowResults(false)}
+                          className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors duration-200"
+                        >
+                          {t("viewAllFormats")}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'instant' && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {t("instantTranslation")}
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {t("textTranslation")} - {t("voiceTranslation")}
+                    </p>
+                  </div>
+
+                  <div className="grid lg:grid-cols-2 gap-6">
+                    {/* Source Text */}
+                    <div className="space-y-4">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t("sourceText")} ({currentLang === 'ar' ? 'العربية' : 'English'})
+                      </label>
+                      <textarea
+                        value={instantSourceText}
+                        onChange={(e) => setInstantSourceText(e.target.value)}
+                        className="w-full h-64 p-4 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder={currentLang === 'ar' ? 'اكتب النص هنا...' : 'Type text here...'}
+                      />
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => navigator.clipboard.writeText(instantSourceText)}
+                          className="flex-1 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                        >
+                          {t("copyTranslation")}
+                        </button>
+                        <button
+                          onClick={() => setInstantSourceText("")}
+                          className="flex-1 py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200"
+                        >
+                          {t("clearText")}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Translated Text */}
+                    <div className="space-y-4">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t("translatedText")} ({currentLang === 'ar' ? 'English' : 'العربية'})
+                      </label>
+                      <div className="w-full h-64 p-4 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-600 text-gray-900 dark:text-white resize-none">
+                        {instantTranslatedText || (currentLang === 'ar' ? 'الترجمة ستظهر هنا...' : 'Translation will appear here...')}
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => navigator.clipboard.writeText(instantTranslatedText)}
+                          className="flex-1 py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
+                          disabled={!instantTranslatedText}
+                        >
+                          {t("copyTranslation")}
+                        </button>
+                        <button
+                          onClick={() => setInstantTranslatedText("")}
+                          className="flex-1 py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200"
+                        >
+                          {t("clearText")}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Voice Translation Section */}
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      {t("voiceTranslation")}
+                    </h3>
+                    <div className="flex flex-col items-center space-y-4">
+                      <button
+                        onClick={handleSpeak}
+                        disabled={isSpeaking}
+                        className={`w-32 h-32 rounded-full flex items-center justify-center transition-all duration-200 ${
+                          isSpeaking
+                            ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
+                            : "bg-green-500 hover:bg-green-600 text-white"
+                        }`}
+                      >
+                        {isSpeaking ? (
+                          <div className="text-center">
+                            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                            <span className="text-sm">{t("listening")}</span>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                            <span className="text-sm">{t("pressToTalk")}</span>
+                          </div>
+                        )}
+                      </button>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                        {t("speakNow")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'conversation' && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {t("liveConversation")}
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {t("conversationMode")} - {t("realTimeCaption")}
+                    </p>
+                  </div>
+
+                  {!conversationSession ? (
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-8 text-center">
+                      <div className="w-24 h-24 mx-auto mb-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                        <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-1m4-4l4-4m-4 4l4 4" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                        {t("startConversation")}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        {t("conversationMode")} - {t("realTimeCaption")}
+                      </p>
+                      <button
+                        onClick={handleStartConversation}
+                        className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors duration-200"
+                      >
+                        {t("startConversation")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Conversation Header */}
+                      <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
+                        <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                          <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {t("connectionStatus")}: {isListening ? t("connected") : t("disconnected")}
+                          </span>
+                        </div>
+                        <button
+                          onClick={handleEndConversation}
+                          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
+                        >
+                          {t("endConversation")}
+                        </button>
+                      </div>
+
+                      {/* Conversation Messages */}
+                      <div className="bg-white dark:bg-gray-700 rounded-xl p-4 h-96 overflow-y-auto">
+                        {conversationSession.messages.length === 0 ? (
+                          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                            {t("startConversation")}
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {conversationSession.messages.map((message) => (
+                              <div
+                                key={message.id}
+                                className={`flex ${message.speaker === 'user' ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div
+                                  className={`max-w-xs lg:max-w-md rounded-2xl p-4 ${
+                                    message.speaker === 'user'
+                                      ? 'bg-green-500 text-white rounded-br-none'
+                                      : 'bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-white rounded-bl-none'
+                                  }`}
+                                >
+                                  <p className="text-sm">{message.originalText}</p>
+                                  <p className={`text-xs mt-2 ${message.speaker === 'user' ? 'text-green-100' : 'text-gray-500'}`}>
+                                    {message.translatedText}
+                                  </p>
+                                  <p className={`text-xs mt-1 ${message.speaker === 'user' ? 'text-green-100' : 'text-gray-500'}`}>
+                                    {message.timestamp.toLocaleTimeString()}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Voice Controls */}
+                      <div className="flex justify-center space-x-4 rtl:space-x-reverse">
+                        <button
+                          onClick={handleSpeak}
+                          disabled={isSpeaking}
+                          className={`px-6 py-3 rounded-xl font-medium transition-colors duration-200 ${
+                            isSpeaking
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                              : 'bg-green-500 hover:bg-green-600 text-white'
+                          }`}
+                        >
+                          {isSpeaking ? t("listening") : t("speakNow")}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* System Logs Panel */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              {t("errorLogs")}
+            </h2>
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 h-64 overflow-y-auto">
+              {systemLogs.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                  لا توجد سجلات حالياً
+                </div>
+              ) : (
+                <div className="space-y-2 font-mono text-sm">
+                  {systemLogs.map((log, index) => (
+                    <div key={index} className="text-gray-600 dark:text-gray-400">
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-bold text-lg">99</span>
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">{t("feature1Title")}</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{t("feature1Desc")}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">{t("feature2Title")}</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{t("feature2Desc")}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 mx-auto mb-4 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">{t("feature3Title")}</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{t("feature3Desc")}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 mx-auto mb-4 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">{t("feature4Title")}</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">{t("feature4Desc")}</p>
+            </div>
+          </div>
+
+          {/* Language Support Info */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+              {t("supportedLanguages")}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 text-sm">
+              {supportedLanguages.slice(1, 19).map((lang) => (
+                <div key={lang.code} className="flex items-center space-x-2 rtl:space-x-reverse p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-700 dark:text-gray-300">{lang.native}</span>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-4">
+              <p className="text-gray-600 dark:text-gray-400">
+                + {supportedLanguages.length - 19} {t("additionalLanguages")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Review Modal */}
+      {showReview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {t("reviewTitle")}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {t("reviewSubtitle")}
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {processingType === "burnTranscribe" ? t("transcribedText") : t("translatedText")}
+                </label>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {t("charCount")}: {charCount} | {t("wordsCount")}: {wordCount}
+                </div>
+              </div>
+              
+              <textarea
+                value={editedText}
+                onChange={(e) => setEditedText(e.target.value)}
+                className="w-full h-64 p-4 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder={t("editPlaceholder")}
+              />
+              
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t("editorHelp")}
+              </p>
+              
+              <div className="flex flex-wrap gap-3 pt-4">
+                <button
+                  onClick={handleSaveChanges}
+                  className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors duration-200 flex items-center space-x-2 rtl:space-x-reverse"
+                >
+                  <span>{t("saveChanges")}</span>
+                </button>
+                
+                <button
+                  onClick={handleBurnNow}
+                  className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors duration-200 flex items-center space-x-2 rtl:space-x-reverse"
+                >
+                  <span>{t("burnNow")}</span>
+                </button>
+                
+                <button
+                  onClick={() => setShowReview(false)}
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                >
+                  {t("skipReview")}
+                </button>
+              </div>
+              
+              {isTextSaved && (
+                <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p className="text-green-700 dark:text-green-300 text-sm">
+                    {t("changesSaved")}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {authMode === 'reset' ? t("resetPassword") : t("authModalTitle")}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    {authMode === 'reset' 
+                      ? t("resetInstructions")
+                      : authMode === 'login' 
+                        ? t("welcomeBack")
+                        : t("createAccount")
+                    }
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    setAuthError('');
+                    setAuthMode('login');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              {authMode !== 'reset' ? (
+                <>
+                  {/* نموذج البريد الإلكتروني */}
+                  <form onSubmit={handleEmailAuth} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {t("emailPlaceholder")}
+                      </label>
+                      <input
+                        type="email"
+                        value={authEmail}
+                        onChange={(e) => setAuthEmail(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder={t("emailPlaceholder")}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {t("passwordPlaceholder")}
+                      </label>
+                      <input
+                        type="password"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder={t("passwordPlaceholder")}
+                        required
+                      />
+                    </div>
+                    
+                    {authMode === 'signup' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          {t("confirmPassword")}
+                        </label>
+                        <input
+                          type="password"
+                          value={authConfirmPassword}
+                          onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          placeholder={t("confirmPassword")}
+                          required
+                        />
+                      </div>
+                    )}
+                    
+                    {authError && (
+                      <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <p className="text-red-700 dark:text-red-300 text-sm">{authError}</p>
+                      </div>
+                    )}
+                    
+                    <button
+                      type="submit"
+                      disabled={isAuthLoading}
+                      className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isAuthLoading ? (
+                        <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>{authMode === 'login' ? t("signIn") : t("signUp")}</span>
+                        </div>
+                      ) : (
+                        authMode === 'login' ? t("signIn") : t("signUp")
+                      )}
+                    </button>
+                  </form>
+                  
+                  {/* روابط إضافية */}
+                  <div className="mt-4 text-center">
+                    {authMode === 'login' ? (
+                      <>
+                        <button
+                          onClick={() => setAuthMode('reset')}
+                          className="text-sm text-green-600 dark:text-green-400 hover:underline"
+                        >
+                          {t("forgotPassword")}
+                        </button>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                          {t("noAccount")}{' '}
+                          <button
+                            onClick={() => setAuthMode('signup')}
+                            className="text-green-600 dark:text-green-400 hover:underline font-medium"
+                          >
+                            {t("signUp")}
+                          </button>
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {t("haveAccount")}{' '}
+                        <button
+                          onClick={() => setAuthMode('login')}
+                          className="text-green-600 dark:text-green-400 hover:underline font-medium"
+                          >
+                            {t("signIn")}
+                          </button>
+                      </p>
+                    )}
+                  </div>
+                  
+                  {/* فاصل */}
+                  <div className="flex items-center my-6">
+                    <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
+                    <span className="px-3 text-sm text-gray-500 dark:text-gray-400">{t("continueWith")}</span>
+                    <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
+                  </div>
+                  
+                  {/* أزرار التواصل الاجتماعي */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => handleSocialAuth('google')}
+                      disabled={isAuthLoading}
+                      className="flex items-center justify-center space-x-2 rtl:space-x-reverse p-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      <span className="text-sm font-medium">Google</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleSocialAuth('facebook')}
+                      disabled={isAuthLoading}
+                      className="flex items-center justify-center space-x-2 rtl:space-x-reverse p-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50"
+                    >
+                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                      <span className="text-sm font-medium">Facebook</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleSocialAuth('apple')}
+                      disabled={isAuthLoading}
+                      className="flex items-center justify-center space-x-2 rtl:space-x-reverse p-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                      </svg>
+                      <span className="text-sm font-medium">Apple</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleSocialAuth('github')}
+                      disabled={isAuthLoading}
+                      className="flex items-center justify-center space-x-2 rtl:space-x-reverse p-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                      </svg>
+                      <span className="text-sm font-medium">GitHub</span>
+                    </button>
+                  </div>
+                  
+                  {/* شروط الخدمة */}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
+                    {t("termsAgree")}
+                  </p>
+                </>
+              ) : (
+                /* نموذج إعادة تعيين كلمة المرور */
+                <>
+                  <form onSubmit={(e) => { e.preventDefault(); handleForgotPassword(); }} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {t("emailPlaceholder")}
+                      </label>
+                      <input
+                        type="email"
+                        value={authEmail}
+                        onChange={(e) => setAuthEmail(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder={t("emailPlaceholder")}
+                        required
+                      />
+                    </div>
+                    
+                    {authError && (
+                      <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <p className="text-red-700 dark:text-red-300 text-sm">{authError}</p>
+                      </div>
+                    )}
+                    
+                    <button
+                      type="submit"
+                      disabled={isAuthLoading}
+                      className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isAuthLoading ? (
+                        <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>{t("sendResetLink")}</span>
+                        </div>
+                      ) : (
+                        t("sendResetLink")
+                      )}
+                    </button>
+                  </form>
+                  
+                  <div className="text-center mt-4">
+                    <button
+                      onClick={() => setAuthMode('login')}
+                      className="text-sm text-green-600 dark:text-green-400 hover:underline"
+                    >
+                      {t("backToLogin")}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
